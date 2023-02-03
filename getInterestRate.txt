@@ -1,0 +1,77 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getInterestRate`(in myuser int, in banker int,in myloanvalue decimal (18,4), in debug bool, out myterm int , out  myminRate decimal(10,4)
+, out mymaxRate decimal(10,4))
+BEGIN
+-- Desc:		Fetches Interest rates for a user
+-- Called by:	get_eligibility_loanamount
+-- Calls:		None
+                    
+
+declare coAppoccid, primaryoccid,mycoApplicantId,term1,term2,primaryITFilestatus,coAppITfilestatus int;
+
+declare minRate1,maxRate1,minRate2,maxRate2 decimal(10,4);
+
+
+
+	
+
+	set myterm=12;
+	set myminRate=99.0;
+	set mymaxRate=99.0;
+	set term2=12;
+	set minRate2=99.0;
+	set maxRate2=99.0;
+    set mycoApplicantId=0;
+	select e.OccupationTypeId,e.ITfiled into primaryoccid,primaryITFilestatus from user_employment e where e.userId =myuser;
+    select r.periodInMonths, r.minRate, r.maxRate  into myterm, myminRate, mymaxRate from ref_interest_rates r 
+		inner join asset_financing f on userId=myuser
+		inner join lender_product_loan l on r.lenderId = l.lenderid and l.productTypeId=f.productTypeId  
+        and l.loantypeid = r.loantypeid -- added by Priya on Feb 2, 2023 to get unique row. For lenderid = 10, this issue arised
+        and l.loantypeid=1
+		where r.lenderId=banker and myloanvalue between r.startRange and r.endRange  and r.OccupationTypeId=primaryOccId and r.activeStatus>0 and r.ITfiled=primaryITFilestatus and r.productTypeId=l.producttypeforintcal ;
+		
+    if debug then select 'Primary Interest Rate',myterm, myminRate, mymaxRate,myloanvalue; end if;	
+		
+   SELECT i.userid into mycoApplicantId from user_login  i where i.primaryUserId = myuser and i.activeStatus > 0; 
+   
+   if mycoApplicantId = 0 then 
+	BEGIN
+	    
+         set term2=0;
+		set minRate2=0;
+	    set maxRate2=0;
+        if debug then select 'No Coapplicant,Values Reset',term2, minRate2, maxRate2,myloanvalue; end if;	
+
+	END;
+   --
+   else
+	BEGIN
+		select e.OccupationTypeId,e.ITfiled  into coAppoccid,coAppITfilestatus from user_employment e where e.userId =mycoApplicantId and e.activeStatus>0;
+		if (debug) then select myuser,mycoApplicantId,primaryoccid,coAppoccid; end if;
+		if (coAppoccid = 1 or coAppoccid = 2 or coAppoccid =3)  then	
+		begin
+		select r1.periodInMonths, r1.minRate, r1.maxRate  into term2, minRate2, maxRate2 from ref_interest_rates r1
+		inner join asset_financing f on userId=myuser
+		inner join lender_product_loan l on r1.lenderId = l.lenderid and l.productTypeId=f.productTypeId 
+        and l.loantypeid = r1.loantypeid -- added by Priya on Feb 2, 2023 to get unique row. For lenderid = 10, this issue arised
+        and l.loantypeid=1
+		where r1.lenderId=banker and myloanvalue between r1.startRange and r1.endRange  and r1.OccupationTypeId=coAppoccid and r1.ITfiled = coAppITfilestatus and r1.activeStatus>0 and r1.productTypeId=l.producttypeforintcal;
+        if debug then select 'Coapplicant Interest Rate',term2, minRate2, maxRate2,myloanvalue; end if;
+		end;
+        else
+			  set term2=0;
+			  set minRate2=0;
+			  set maxRate2=0;
+			if debug then select 'No Coapplicant,Values Reset',term2, minRate2, maxRate2,myloanvalue; end if;	
+
+        begin
+        end;
+		End if;
+		 
+	END;
+   END IF;
+   set myterm= greatest(myterm,term2);
+   set mymaxRate=greatest(mymaxrate,maxrate2);
+   set myminRate=greatest(myminrate,minrate2);
+   
+   
+END

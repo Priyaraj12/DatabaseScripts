@@ -33,7 +33,11 @@ select i.userId, z.zipId, c.cityTierId, p.productTypeId, c.lenderId, c.minimumEa
                                 inner join ref_lender_config c on c.cityTierId = z.cityTierId and 
                                 lenderId = 10 and c.productTypeId=p.productTypeId
                                 inner join user_employment e on e.userid= i.userid  -- Added by Vidhya Jan 7th2019
-                                where i.userid=976 and e.occupationtypeId= c.OccupationTypeId
+                                where i.userid=976 and e.occupationtypeId= c.OccupationTypeId;
                                 
 -- Giving 1 row                                
+
+select count(1) from `staging`.`ref_lender_config` where lenderid = 10 and OccupationTypeId = 1;
+
+delete from `staging`.`ref_lender_config` where lenderid = 10
 
