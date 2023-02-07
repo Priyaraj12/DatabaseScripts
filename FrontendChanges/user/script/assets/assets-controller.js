@@ -169,21 +169,27 @@ var Ps = Ps || {};
 													//adding the changes by Priyaraj on 6th February 2023, not to show propertytypeid 6 and 7
 													//alert($scope.Assets.loantypeid);
 													$scope.productTypes = (JSON.parse(response.data.Result)); 
-													if ($scope.Assets.loantypeid == 1 || $scope.Assets.loantypeid == 2) {
-														$scope.filteredProducts = [];
-														for (var i = 0; i < $scope.productTypes.length; i++) {
-															//alert($scope.products[i].productDesc);
+													$scope.filteredProductsForLoanTypesOneAndTwo = [];
+													$scope.filteredProductsForLoanTypeThree = [];
+													for (var i = 0; i < $scope.productTypes.length; i++) {
 															var productTypeId = $scope.productTypes[i].productTypeId;
 															if (productTypeId != 6 && productTypeId != 7) {
-																//alert($scope.products[i].productDesc);
-																$scope.filteredProducts.push($scope.productTypes[i]);
+																$scope.filteredProductsForLoanTypesOneAndTwo.push($scope.productTypes[i]);
 															}
-														}
-														//alert($scope.filteredProducts.length);
-														$scope.assetsProducts = $scope.filteredProducts;
+															if (productTypeId == 6 || productTypeId == 7) {
+																$scope.filteredProductsForLoanTypeThree.push($scope.productTypes[i]);
+															}
+													}
+													/*for (var i = 0;i < $scope.filteredProductsForLoanTypeThree.length;i++) {
+														alert($scope.filteredProductsForLoanTypeThree[i].productTypeId);
+													}*/
+													//alert($scope.filteredProductsForLoanTypesOneAndTwo.length);
+													
+													if ($scope.Assets.loantypeid == 1 || $scope.Assets.loantypeid == 2) {									
+														$scope.assetsProducts = $scope.filteredProductsForLoanTypesOneAndTwo;
 													}
 													if ($scope.Assets.loantypeid == 3) {
-														$scope.assetsProducts = $scope.productTypes;
+														$scope.assetsProducts = $scope.filteredProductsForLoanTypeThree;
 													}
 													$scope.removeLastPurchaseVal();
 												},
@@ -217,7 +223,8 @@ var Ps = Ps || {};
 										.then(
 												function successCallback(
 														response) {
-
+															//alert("in removeLastPurchaseVal");
+													//alert(response.data.Result);
 													$scope.assetstypes = (JSON
 															.parse(response.data.Result));
 
@@ -1073,11 +1080,11 @@ var Ps = Ps || {};
 								$scope.getProductTypes = function() {
 									//We need to show all producttypes for 3
 									if ($scope.Assets.loantypeid == 3) {
-										$scope.assetsProducts = $scope.productTypes;
+										$scope.assetsProducts = $scope.filteredProductsForLoanTypeThree;
 									}
 									// As we do not need to keep Commercial and Residential product description, it will not be displayed when loantypeid = 1 or 2
 									if ($scope.Assets.loantypeid == 1 || $scope.Assets.loantypeid == 2) {
-										$scope.assetsProducts = $scope.filteredProducts;
+										$scope.assetsProducts = $scope.filteredProductsForLoanTypesOneAndTwo;
 									}
 								} 
 								$scope.next = function(asset) {
@@ -1760,7 +1767,6 @@ var Ps = Ps || {};
 								$scope.loantyperadio = function(index){
 									
 									if ($('input[name=optradio0]:checked').val() == 1 || $('input[name=optradio0]:checked').val() == 3 || $('input[name=optradio0]:checked').val() == 4) {
-										
 										
 								 		$('#CrLoanValue').val(0);
 								 		$('#CrLoanValue').removeClass(
