@@ -129,13 +129,8 @@ BEGIN
         
         
               
-			/*********************************
-			Profile score calls       
-			**********************************************/
-			call getALLProfileScore (myuser , banker,Lpicount1, 0,  ProfileScore);
-			set ProfileScore = ifnull(ProfileScore,0);
-			if (debug) then  SELECT  ProfileScore;  end if;
-                
+			
+			
             
 			/*********************************
 			FOIR score calls Added by Vidhya Feb 26th 2019       

@@ -22,3 +22,12 @@ Below list of tables need entries for lenderid = 10
 1. ref_employer_category_mapping
 2. ref_business_performance_score
 3. ref_business_constitution_score
+
+Feb 10, 2023 update
+--------------------
+1. ref_employer_category_mapping
+2. ref_business_performance_score
+3. ref_business_constitution_score
+
+It is observed that only for lenderid 0 the records are available in the above table.
+In that case we no need to add entries for lenderid 10(Vastu).
