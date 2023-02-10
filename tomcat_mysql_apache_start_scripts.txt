@@ -1,0 +1,15 @@
+Steps to start tomcat : 
+------------------------
+1. Login to Putty for dev/uat server
+2. Navigate to  /opt/apache-tomcat-8.5.31/bin
+3. ./startup.sh
+4. Similarly in case to shutdown : ./shutdown.sh
+
+To start MySQL
+-----------------
+1. sudo su
+2. systemctl start mysql
+
+To start apache
+-----------------
+1. sudo service apache2 restart

@@ -1,0 +1,24 @@
+Tables that undergone changes for ProfileScore,LTVScore,CreditScore
+----------------------------------------
+ProfileScore related tables that undergone changes for "weightPct" column:
+----------------------------------------------------------
+1. ref_education_score
+2. ref_employer_type_score
+3. ref_age
+4. ref_job_tenure
+5. ref_prof_tenure
+
+LTVScore related tables that undergone changes for "score" column
+-----------------------------------
+1. ref_ltv  (Here score is set to 80 instead of existed 0 for the range between 71 -999)
+
+CreditScore related tables that undergone changes for "weightPct" column:
+-----------------------------------------
+1. ref_credit_score
+Still some more need to see for this creditscore. But after modified weightPct to 100 as like lenderid 8,
+got creditscore as 15.000 instead of already retrieved 11.175. Will explore more on this later.
+
+Below list of tables need entries for lenderid = 10
+1. ref_employer_category_mapping
+2. ref_business_performance_score
+3. ref_business_constitution_score
