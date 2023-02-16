@@ -113,8 +113,8 @@ var Ps = Ps || {};
 								} else{
 									
 								}
-								} */
-/* Commented out by Priyaraj on Feb 15, 2023 as https://api.probe42.in/probe_lite/companies API throwing forbidden error */
+								} 
+
 
 								$scope.change = function(legalName) {
 									financialService.getcompanylistusingcin(
@@ -122,8 +122,8 @@ var Ps = Ps || {};
 											function successCallback(response) {
 												localStorage.setItem('overallCompanyDetails',response.data.Page);
 											});
-								}
-
+								}*/
+/* Commented out by Priyaraj on Feb 15, 2023 as https://api.probe42.in/probe_lite/companies API throwing forbidden error */
 								$scope.incomeChnge = function(e, index) {
 									$('#freqIncome-' + index).val('');
 									if (e == 1 || e == 2 || e == 4) {
