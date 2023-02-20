@@ -48,9 +48,10 @@ BEGIN
 			**********************************************/
 			call  calculateUserIncome(myuser, banker, 0, residualincome, myeligmonths, primaryincome);
 			if debug then select 'Total Residual Income', residualincome; end if;
+			insert into getmyLpi_All_Lenders_consolelogs select concat('Total Residual Income = ', residualincome);
 			call  calculateUserLoans(myuser, banker, 0, currentEMI);
 			if debug then select ' User Existing Loan Values', currentEMI; end if;
-        
+			insert into getmyLpi_All_Lenders_consolelogs select concat(' User Existing Loan Values = ', currentEMI);
 		
 			/*********************************
 			Eligible Tenure Calculations    
@@ -115,7 +116,8 @@ BEGIN
             set mydeductions = ifnull(mydeductions,0);
             set payrollLoans = ifnull(payrollLoans,0);
 
-			if debug then select 'Deduction Selects', grossincome, mydeductions, loans, payrollLoans; end if;        
+			if debug then select 'Deduction Selects', grossincome, mydeductions, loans, payrollLoans; end if; 
+			insert into getmyLpi_All_Lenders_consolelogs select concat('Deduction Selects','.. grossincome = ',grossincome,'..mydeductions = ',mydeductions,'..loans = ',loans,'..payrollLoans = ',payrollLoans);			
 			call get_eligibility_loan_amount(myuser, myterm, myassetvalue, myloanvalue, extensionIndicator, 
 								myEMI+payrollLoans, banker, myproductid, 0, myeligibilityamount, myLenderLoanAmount, revisedTerm, myrate,
 								myrevisedEMI );  
@@ -124,13 +126,20 @@ BEGIN
 								myEMI+payrollLoans, banker, myproductid, debug, myeligibilityamount, myLenderLoanAmount, revisedTerm, myrate,
 								myrevisedEMI;
 			end if;
-        
+			insert into getmyLpi_All_Lenders_consolelogs select concat('AFter Elig','..myuser = ',myuser,'..myterm = ',myterm,'.. myassetvalue = ', myassetvalue,'.. myloanvalue = ',myloanvalue,'..extensionIndicator = ', extensionIndicator, 
+								'.. myEMI+payrollLoans = ',myEMI+payrollLoans,'.. banker = ',banker,'myproductid = ',myproductid,'..debug = ',debug,'..myeligibilityamount = ',myeligibilityamount,'..myLenderLoanAmount = ',myLenderLoanAmount,'.. revisedTerm = ',revisedTerm,'.. myrate = ',myrate,
+								'.. myrevisedEMI = ',myrevisedEMI);
                
         
         
               
-			
-			
+			/*********************************
+			Profile score calls       
+			**********************************************/
+			call getALLProfileScore (myuser , banker,Lpicount1, 0,  ProfileScore);
+			set ProfileScore = ifnull(ProfileScore,0);
+			if (debug) then  SELECT  ProfileScore;  end if;
+            insert into getmyLpi_All_Lenders_consolelogs select concat('ProfileScore..',ProfileScore);
             
 			/*********************************
 			FOIR score calls Added by Vidhya Feb 26th 2019       
@@ -140,17 +149,18 @@ BEGIN
             -- Added by Vidhya Sep 11th 2019 Check for residualincome <>0 before calculating currentFOIR
 			if currentEMI > 0 and residualincome<>0 then set currentFOIR = currentEMI*100/residualincome; end if;
         		
-			if (debug) then SELECT 'Before FOIR Score', currentFOIR, currentEMI, residualincome; end if;   
+			if (debug) then SELECT 'Before FOIR Score', currentFOIR, currentEMI, residualincome; end if;
+			insert into getmyLpi_All_Lenders_consolelogs select concat('Before FOIR Score',currentFOIR,'..currentEMI = ',currentEMI,'..residualincome = ',residualincome);
 			call getFOIRScore(myuser,banker,currentFOIR,Lpicount1,0,FOIRScore);
 			if (debug) then SELECT FOIRScore; end if;
-        
+			insert into getmyLpi_All_Lenders_consolelogs select concat('..FOIRScore = ',FOIRScore);
 			/*********************************
 			LTV  score calls Added by Vidhya Mar 11th 2019  
 			**********************************************/
            
 			call getLTVScore(myuser,banker,myassetvalue,myloanvalue,Lpicount1,0,myLTVScore);
 			if (debug) then SELECT myLTVScore; end if;        
- 
+			insert into getmyLpi_All_Lenders_consolelogs select concat('..myLTVScore = ',myLTVScore);
        
 			/*********************************
 			Income/Loan Verification  Score calls      
@@ -164,7 +174,7 @@ BEGIN
 			**********************************************/
 			call getIncomeProofScore(myuser,banker,Lpicount1,0,myVerificationScore);
 			if (debug) then SELECT myVerificationScore; end if;  
-           
+			insert into getmyLpi_All_Lenders_consolelogs select concat('..myVerificationScore = ',myVerificationScore);
 			/*********************************
 			ProductType score calls Added by Vidhya Feb 26th 2019       
 			*********************************************/
@@ -176,7 +186,7 @@ BEGIN
            
 			call getallCreditScore(myuser,banker,LPicount1,0,myCreditScore);
 			if (debug) then  SELECT myCreditScore; end if;  	
- 
+			insert into getmyLpi_All_Lenders_consolelogs select concat('..myCreditScore = ',myCreditScore);
 			/*********************************
 				Asset score Calculations    
 			**********************************************/
@@ -201,11 +211,12 @@ BEGIN
 			-- call getOwnerShipScore(myuser, banker,Lpicount1, 0,OwnershipScore);
             call getLoanOwnerShipScore(myuser, banker,Lpicount1, 0,OwnershipScore);
 			if (debug) then SELECT OwnershipScore; end if;
-        
+			insert into getmyLpi_All_Lenders_consolelogs select concat('..OwnershipScore = ',OwnershipScore);
 			if (debug) then  SELECT 'User Summary' ,loans,residualincome,tempemipercent,currentEMI,myEMI,myassetvalue,myloanvalue,LTV1, 
 					mycreditScore; end if;
 
-         
+			insert into getmyLpi_All_Lenders_consolelogs select concat('User Summary' ,'loans = ',loans,'..residualincome = ',residualincome,'..tempemipercent = ',tempemipercent,'..currentEMI = ',currentEMI,'..myEMI = ',myEMI,'.. myassetvalue = ',myassetvalue,'..myloanvalue = ',myloanvalue,'.. LTV1 = ',LTV1, 
+					'..mycreditScore = ',mycreditScore);
        
  
 			/*********************************
@@ -231,6 +242,17 @@ BEGIN
                                  --          ,IncomeRangeScore
                                            ,OwnershipScore
                                            ,myLPi,myeligibilityamount, myloanvalue, myLenderLoanAmount; end if;
+			insert into getmyLpi_All_Lenders_consolelogs select concat('ProfileScore = ',ProfileScore);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('FOIRScore = ',FOIRScore);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myLTVScore = ',myLTVScore);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myVerificationScore = ',myVerificationScore);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myCreditScore = ',myCreditScore);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('OwnershipScore = ',OwnershipScore);
+			
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myLPi = ',myLPi);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myeligibilityamount = ',myeligibilityamount);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myloanvalue = ',myloanvalue);
+			insert into getmyLpi_All_Lenders_consolelogs select concat('myLenderLoanAmount = ',myLenderLoanAmount);
 
 			/* Removed proportionate reduction of LPI - PGupta 07/13/2018
 			if myeligibilityamount < myloanvalue then 
@@ -285,7 +307,10 @@ BEGIN
   
 			if (debug) then select 'before single insert',  myuser, banker, myLPi, residualincome, myassetvalue, myLenderLoanAmount,
                 myLenderEMI, myeligibilityamount, myeligibilityEMI,  myloanvalue,  myloanEMI, myrevisedEMI,
-                                    revisedTerm, myrate, maxLTV, currentEMI, rejectFlag, debug, id1,Lpicount1; end if;       
+                                    revisedTerm, myrate, maxLTV, currentEMI, rejectFlag, debug, id1,Lpicount1; end if; 
+			insert into getmyLpi_All_Lenders_consolelogs select concat('before single insert','myuser = ',myuser,'..banker=', banker,'..myLPi = ',myLPi,'..residualincome = ', residualincome,'.. myassetvalue = ',myassetvalue,'myLenderLoanAmount= ',myLenderLoanAmount,
+                '..myLenderEMI = ',myLenderEMI,'.. myeligibilityamount = ',myeligibilityamount,'..myeligibilityEMI = ',myeligibilityEMI,'..myloanvalue = ',myloanvalue,'..myloanEMI = ',myloanEMI,'..myrevisedEMI = ',myrevisedEMI,
+                                    '.. revisedTerm = ',revisedTerm,'..myrate = ',myrate,'..maxLTV = ',maxLTV,'..currentEMI = ',currentEMI,'..rejectFlag = ',rejectFlag,'.. debug = ',debug,'..id1 = ',id1,'.. Lpicount1 = ',Lpicount1);
                                         
 			SET id1 = -1;
                --  select 'real insert';

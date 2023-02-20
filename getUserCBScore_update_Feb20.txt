@@ -1,0 +1,64 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserCBScore`(in userID int, in debug bool, out CrifScore int)
+BEGIN
+-- Desc:		Calculates  Lowest of Crif score for a given applicant vs co-applicant
+-- Called by:	getmyLPi_new
+-- Calls:		None
+                    
+
+declare CrifScore1, CrifScore2,income decimal (18,4);
+declare mycoApplicantId,temp1,temp2 int;
+
+set CrifScore = -99;
+set CrifScore1 =-99;
+set CrifScore2 =-99;
+set mycoApplicantId =0;
+SELECT u.userid into mycoApplicantId from user_login  u where u.primaryUserId = userID and u.activeStatus > 0; 
+ set income = 0;
+		
+		
+		if (debug) then select 'after income check', income,  userID; end if;
+		insert into getmyLpi_All_Lenders_consolelogs select concat('after income check', '..income = ',income,'..userid = ',userID);
+      	begin
+				DECLARE CONTINUE HANDLER FOR NOT FOUND SET Crifscore1 = 0;
+                 if (debug) then SELECT 'inside err handler' ,CrifScore1,userID; end if;
+				 insert into getmyLpi_All_Lenders_consolelogs select concat('inside err handler' ,'..CrifScore1 = ',CrifScore1,'..userID = ',userID);
+				select g.creditScore into CrifScore1 from user_credit_info g where g.userId=userID and g.activeStatus=1;
+		end;
+        if mycoApplicantId !=0  then	
+			begin
+                SELECT ifnull(sum(userGrossIncome),0) into income 
+				from user_income i 
+                inner join ref_income_type t on t.refIncomeTypeId=i.userIncomeTypeId and i.activeStatus > 0
+				where i.userid= mycoApplicantId and i.activeStatus > 0 and t.isCoreIncome='1'
+				group by i.userid;
+			end;
+			if income >0 then
+				begin
+			    	select g.creditScore into CrifScore2 from user_credit_info g where g.userId=mycoApplicantID and g.activeStatus=1;
+					if (debug) then SELECT 'inside coapp' ,CrifScore2,mycoApplicantId; end if;
+					insert into getmyLpi_All_Lenders_consolelogs select concat('inside coapp' ,'..CrifScore2 = ',CrifScore2,'..mycoApplicantId = ',mycoApplicantId);
+					
+				end;
+			end if;
+		end if;
+		
+        if (CrifScore1 <300) or (CrifScore2<300) then
+			begin
+				Set  CrifScore= greatest(CrifScore1,CrifScore2);
+				if (debug) then Select 'Inside If',CrifScore1,CrifScore2,CrifScore; end if;
+				insert into getmyLpi_All_Lenders_consolelogs select concat('Inside If','.. CrifScore1 = ',CrifScore1,'.. CrifScore2 = ',CrifScore2,'.. CrifScore = ',CrifScore);
+			end;
+        else
+			begin
+				set CrifScore = least(CrifScore1,CrifScore2);
+				if (debug) then  SELECT'Inside Else',CrifScore1,CrifScore2,CrifScore; end if;
+				insert into getmyLpi_All_Lenders_consolelogs select concat('Inside else','.. CrifScore1 = ',CrifScore1,'.. CrifScore2 = ',CrifScore2,'.. CrifScore = ',CrifScore);
+			end;
+		end if;
+        /*********************************
+		End Crif Score Calculations    
+		**********************************************/
+ 
+ 
+
+END

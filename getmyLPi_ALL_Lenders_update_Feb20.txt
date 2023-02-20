@@ -1,0 +1,241 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getmyLPi_ALL_Lenders`(in myuser int, in yesNo int,  in debug int)
+BEGIN
+		declare banker, id1, id2, status1, count1, temp, temp1, BTLender,rejecttemp,myloanid,MappedLender,userCrifScore,coappid int; 
+		declare producttypeid int; -- added  by Priyaraj on Feb 1, 2023 for rejecting if producttypeid = 99 and 3 (for lender = vastu) when user selects it from frontend
+        declare occupationtypeId int; -- added by Priyaraj on Feb 8, 2023 for rejecting if occupationtypeid = 1 and producttypeid = 6 or 7 (for lender = vastu) when user selects it from frontend
+        declare done  boolean;
+        declare myLPi decimal (10,4);
+        declare myuseremail,errmsg varchar(100);
+        -- Done by Priyaraj on Feb 20, 2023
+        -- To have the execution flow , we are inserting statements in getmyLpi_All_Lenders_consolelogs
+       
+        --
+        
+			
+		-- We choose to calculate LPi for the banks that support specific product and specific loantype    
+		-- Cursor to be used when no valid creditscore is available
+		DECLARE curs1 CURSOR FOR SELECT l.lenderid FROM lender l
+		inner join lender_product_loan lp on l.lenderid =lp.lenderid 
+		inner join asset_financing a on lp.producttypeid = a.producttypeid and lp.loantypeid = a.loanTypeId
+		where l.activeStatus >0 and lp.activestatus>0 and a.activeStatus>0 and a.userid=myuser;
+		-- DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+	
+		-- We choose to calculate LPi for the banks that support specific product and specific loantype    
+		-- Cursor to be used when valid creditscore is available
+		DECLARE curs2 CURSOR FOR SELECT l.lenderid FROM lender l
+		inner join lender_product_loan lp on l.lenderid =lp.lenderid 
+		inner join asset_financing a on lp.producttypeid = a.producttypeid and lp.loantypeid = a.loanTypeId
+		where l.activeStatus >0 and lp.activestatus>0 and a.activeStatus>0 and a.userid=myuser and userCrifScore between l.creditStartRange and l.creditEndRange ;
+		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+			
+		set id2=0;
+		set BTLender=0;
+		set rejecttemp=0;
+		set MappedLender=100;
+		set coappid=-1;
+					
+		select primaryUserId, userLPiStatus, LPiCount, userEmail, subscriptionId into id1,  status1, count1, myuseremail, id2 
+		from user_login where userId=myuser and activeStatus > 0;
+		-- Modified the select query by Priyaraj on Feb 1, 2023 to get productTypeId as well
+		-- select f.loanTypeId, f.currentLender into myloanid, BTLender from asset_financing f where f.userid=myuser and activeStatus>0;
+		select f.loanTypeId, f.currentLender,f.productTypeId into myloanid, BTLender,producttypeid from asset_financing f where f.userid=myuser and activeStatus>0;
+		
+		-- Modified the select query by Priyaraj on Feb 1, 2023 to get productTypeId as well
+        
+        -- Added the select query by Priyaraj on Feb 8, 2023 to get occupationtypeId from user_employment 
+		select ue.occupationtypeId into occupationtypeId from user_employment ue where ue.userId = myuser and activeStatus > 0;
+		if myloanid = 2 then 			
+			select l.lpilenderid into MappedLender from ref_lender_mapping l where l.loanlenderid=BTLender;
+			if (debug) then select 'Lender Mapping', BTLender, MappedLender, done ; end if;   
+			insert into getmyLpi_All_Lenders_consolelogs select concat('Lender Mapping :','BTLender = ',BTLender,'..MappedLender = ',MappedLender,'.. done = ',done);
+		end if;
+		
+		set temp=0;
+		select count(*) into temp from user_lpi_lenders where activeStatus>0 and userid=myuser;
+
+		set temp1=0;
+		select count(*) into temp1 from user_lender_reject where activeStatus>0 and userid=myuser;
+
+	   
+		if ifnull(id2,0) = 0 then 
+			select max(subscriptionDetailId) into id2 from subscription_details s 
+			where s.AssignedUsereMail = myuseremail  and activeStatus > 0;
+		end if;
+	
+		if ifnull(id2,0) = 0 then set yesNo = 0; end if;
+		
+		if (debug) then select 'before curssor', id1, id2,  status1, count1 , temp, myuseremail, done ; end if;
+        -- Adding the debug statement outputs in getmyLpi_All_Lenders_consolelogs under column1
+        insert into getmyLpi_All_Lenders_consolelogs select concat('before cursor : ','id1 = ',id1,'.. id2 = ',id2, '..status1 = ',status1,'.. count1 = ',count1,'..temp = ',temp,'..myuseremail = ',myuseremail);
+        --
+
+		if ifnull(id2,0) > 0 then 
+			if ifnull(temp,0) = 0 then set yesNo=1; end if;  -- if there are no LPi records then force LPi calculation by setting yesno=1			
+		end if;
+
+		if (id1 = 0) and (status1 < 2)  and (count1 < 5) and (yesNo > 0) and (ifnull(id2,0) > 0) then
+			begin
+				if (debug) then select 'in begin before updating active status'; end if;
+                insert into getmyLpi_All_Lenders_consolelogs select concat('in begin before updating active status',status1);
+					-- New code to set activeStatus to 0 for existing user lpi lenders
+				if ifnull(temp,0) > 0 then 
+					begin
+						update user_lpi_lenders set activeStatus = 0 where userid=myuser and activeStatus>0; 
+						if (debug) then select 'setting user_lpi_lenders activeStatus to 0'; end if;
+                        insert into getmyLpi_All_Lenders_consolelogs select concat('setting user_lpi_lenders activeStatus to 0','..userid = ',myuser);
+						UPDATE user_lpi_lender_category_scores u SET u.activeStatus=0 where u.primaryUserId=myuser and activeStatus>0 and user_lpi_lender_category_score_id>0;
+						
+					end;
+				end if;  
+				if ifnull(temp1,0) > 0 then 
+					update user_lender_reject set activeStatus = 0 where userid=myuser and activeStatus>0; 
+				-- 	delete from user_lender_reject where activeStatus>0 and userid=myuser;
+					if (debug) then select 'setting user_lender_reject activeStatus to 0'; end if;
+					insert into getmyLpi_All_Lenders_consolelogs select concat('setting user_lender_reject activeStatus to 0','..userid = ',myuser);
+				end if;  
+					
+				
+				-- end of new code
+				
+				set done = FALSE;
+				call getUserCBScore(myuser,0,userCrifScore);
+				-- Checking for userCreditscore and if it is not done then skipping creditrange check else doing it
+				if (userCrifScore<300) then
+					begin
+						OPEN curs1;
+						if (debug) then select 'opening cursor1', done ; end if;
+						insert into getmyLpi_All_Lenders_consolelogs select concat('opening cursor1 when userCrifScore<300','..userCrifScore = ',userCrifScore); 
+							read_loop: LOOP
+								FETCH curs1 INTO banker;
+									-- if (debug) then select 'within Loop', banker, myLPi, done; end if;
+									IF done THEN LEAVE read_loop; END IF;
+									-- if (debug) then select 'within Loop', banker, myLPi; end if;
+									-- Added by Priya on Feb 1, for showing the rejection from Vastu(banker = 10) when producttypeid = 99/3
+                                    -- Added additional condition for productttypeid = 6 or 7 with occupationtypeid = 1 to undergo rejection as it is not supported on 8th February 2023
+									if (banker = 10) and (producttypeid = 99 or producttypeid = 3 or producttypeid = 6 or producttypeid = 7) then
+										if (debug) then select '(banker = 10) and (producttypeid = )', banker, producttypeid; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('banker = 10 and producttypeid = ', producttypeid);
+										if (producttypeid = 99) then
+											set errmsg = 'Vastu does not provide offers for property not identified cases properties';
+										end if;    
+										if (producttypeid = 3) then
+											set errmsg = 'Vastu does not provide offers for purchase of residential plots properties';
+										end if;
+                                        if (producttypeid = 6  and occupationtypeId = 1) then
+											set errmsg = 'Vastu does not provide offers for residential properties in LAP for Salaried people';
+										end if;
+										if (producttypeid = 7  and occupationtypeId = 1) then
+											set errmsg = 'Vastu does not provide offers for commerical properties in LAP for Salaried people';
+										end if;
+										if (debug) then select 'inserting lender reject', banker,producttypeid,occupationtypeId; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('inserting lender reject ', '.. occupationtypeId = ',occupationtypeId, '.. errmsg = ',errmsg);
+										call insert_lender_reject(myuser,banker,errmsg,rejecttemp);
+
+									-- Added by Priya on Feb 1, for showing the rejection from Vastu(banker = 10) when producttypeid = 99/3
+									else -- For other producttypeid usual procedure in the case of Vastu and also other lenders
+										if (myloanid<>2) then
+											if (debug) then select 'inside loan id NOT = 2', banker, myLPi; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id NOT = 2','..banker = ',banker);
+											if (debug) then select 'calling getmyLPi_new', banker,producttypeid; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('calling getmyLPi_new', '..producttypeid = ',producttypeid,'.. myuser = ',myuser,'..banker = ',banker, '..count1 = ',count1);
+											call getmyLPi_new(myuser, banker,count1, 0, myLPi);
+										end if;
+									
+							
+										if(myloanid=2) and (banker!=MappedLender) then
+											
+											if (debug) then select 'inside loan id = 2 and banker NOT = mapped lender', MappedLender, banker, myLPi; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id = 2 and banker NOT = mapped lender and calling getmyLPi_new','..MappedLender = ',MappedLender,'..banker = ',banker,'..producttypeid = ',producttypeid,'..count1 = ',count1);
+											
+										   call getmyLPi_new(myuser, banker,count1, 0, myLPi);
+											if (debug) then select 'within Loop', banker, myLPi; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('within Loop','..banker = ',banker);
+										end if;
+								
+										if(myloanid=2) and (banker=MappedLender) then
+											
+											if (debug) then select 'inside loan id = 2 and banker = mapped lender', MappedLender, banker, myLPi; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id = 2 and banker = mapped lender', '.. MappedLender = ',MappedLender, '.. banker = ',banker);
+											set errmsg = 'BT Lender match';
+											if (debug) then select 'inserting lender reject', MappedLender, banker; end if;
+											insert into getmyLpi_All_Lenders_consolelogs select concat('inserting lender reject','..MappedLender = ',MappedLender,'..banker = ',banker,'..errmsg = ',errmsg);
+											call insert_lender_reject(myuser,banker,errmsg,rejecttemp);
+											   
+										end if;
+									end if;			
+							
+							END LOOP;
+						CLOSE curs1;
+					end;
+				
+				else -- if >= 300
+					begin
+						OPEN curs2;
+						if (debug) then select 'opening cursor2', done ; end if;
+						read_loop: LOOP
+							FETCH curs2 INTO banker;
+								-- if (debug) then select 'within Loop', banker, myLPi, done; end if;
+								IF done THEN LEAVE read_loop; END IF;
+								-- if (debug) then select 'within Loop', banker, myLPi; end if;
+								-- Added by Priya on Feb 1, for showing the rejection from Vastu(banker = 10) when producttypeid = 99 or 3
+								if (banker = 10) and (producttypeid = 99 or producttypeid = 3 or producttypeid = 6 or producttypeid = 7) then
+									if (debug) then select '(banker = 10) and (producttypeid = 99 or 3 or 6 or 7) and occupationtypeId =  ', banker, producttypeid,occupationtypeId; end if;
+									insert into getmyLpi_All_Lenders_consolelogs select concat('banker = 10 and producttypeid = ', producttypeid,'..occupationtypeId = ',occupationtypeId);
+									if (producttypeid = 99) then
+										set errmsg = 'Vastu does not provide offers for property not identified cases properties';
+									end if;    
+									if (producttypeid = 3) then
+										set errmsg = 'Vastu does not provide offers for purchase of residential plots properties';
+									end if;
+									if (producttypeid = 6  and occupationtypeId = 1) then
+										set errmsg = 'Vastu does not provide offers for residential properties in LAP for Salaried people';
+									end if;
+									if (producttypeid = 7  and occupationtypeId = 1) then
+										set errmsg = 'Vastu does not provide offers for commerical properties in LAP for Salaried people';
+									end if;
+                                    
+									if (debug) then select 'inserting lender reject', banker,producttypeid,occupationtypeId; end if;
+									insert into getmyLpi_All_Lenders_consolelogs select concat('inserting lender reject','..producttypeid = ',producttypeid,'..occupationtypeId = ',occupationtypeId);
+									call insert_lender_reject(myuser,banker,errmsg,rejecttemp);
+								-- Added by Priya on Feb 1, for showing the rejection from Vastu(banker = 10) when producttypeid = 99/3									   
+								else -- For other producttypeid usual procedure in the case of Vastu and also other lenders
+									if (myloanid<>2) then
+										if (debug) then select 'inside loan id NOT = 2', banker, myLPi; end if;
+										if (debug) then select 'calling getmyLPi_new', banker,producttypeid; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id NOT = 2 and calling getmyLPi_new','..banker = ',banker,'..producttypeid = ',producttypeid);
+										call getmyLPi_new(myuser, banker,count1, 0, myLPi);
+									end if;
+
+							
+									if(myloanid=2) and (banker!=MappedLender) then										
+										if (debug) then select 'inside loan id = 2 and banker NOT = mapped lender', MappedLender, banker, myLPi; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id = 2 and banker NOT = mapped lender and calling getmyLPi_new','..banker = ',banker,'..MappedLender = ',MappedLender);
+										call getmyLPi_new(myuser, banker,count1, 0, myLPi);
+										if (debug) then select 'within Loop', banker, myLPi; end if;
+									end if;
+							
+									if(myloanid=2) and (banker=MappedLender) then										
+										if (debug) then select 'inside loan id = 2 and banker = mapped lender', MappedLender, banker, myLPi; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('inside loan id = 2 and banker = mapped lender and calling getmyLPi_new','..banker = ',banker,'..MappedLender = ',MappedLender);
+										set errmsg = 'BT Lender match';
+										if (debug) then select 'inserting lender reject', MappedLender, banker; end if;
+										insert into getmyLpi_All_Lenders_consolelogs select concat('inserting lender reject','..userid = ',myyser,'..errmsg = ',errmsg);
+										call insert_lender_reject(myuser,banker,errmsg,rejecttemp);										   
+									end if;
+								end if;							
+						END LOOP;
+						CLOSE curs2;
+					end;
+				end if; -- if userCrifScore 
+				update user_login set LPiCount = LpiCount+1, updatedOn = now() where userId=myuser and activeStatus >0; 	
+			end;
+		end if;
+		
+		call get_All_Lender_Prospects (myuser); 
+		if id1 > 0 then 
+			call get_All_Lender_Prospects (id1); 
+		end if;
+                  
+
+            
+END
