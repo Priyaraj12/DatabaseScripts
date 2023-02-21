@@ -6,7 +6,7 @@ SELECT * FROM staging.lender;
 
 select * from loan_type;
 INSERT INTO `staging`.`loan_type`(`loantypeid`,`loantype_desc`,`created_on`,`updated_on`,`created_by`,`updated_by`,`activestatus`) 
-VALUES (3,'LPA',now(),now(),'Vastu','Vastu',1);
+VALUES (3,'LAP',now(),now(),'Vastu','Vastu',1);
 select * from lender_product_loan where lenderid = 10;
 
 select * from ref_producttype_score where lenderid = 10;
@@ -792,6 +792,7 @@ UPDATE `staging`.`lender` SET `activeStatus` = '0' WHERE (`lenderId` = '9');
 -- As a trial trying to add the logs in getmyLpi_All_Lenders_consolelogs
 CREATE TABLE `staging`.`getmyLpi_All_Lenders_consolelogs` (
   `column1` VARCHAR(500) NULL);
+  /*
  -- Tables checked for LAP  Producttypeid = 6,7 and loantypeid = 3 
  select * from staging.lender_product_loan where lenderid = 10;
  
@@ -810,7 +811,24 @@ CREATE TABLE `staging`.`getmyLpi_All_Lenders_consolelogs` (
  
  select * from staging.ref_emi_config where lenderid = 10;
   
+ 
+ */
  select * from staging.getmyLpi_All_Lenders_consolelogs;
+ 
+ -- Records need to be available under ref_loan_guidelines for producttypeid 6 and 7. Otherwise we will get eligibilityamount as 0
+ INSERT INTO `staging`.`ref_loan_guidelines` (`refguidelineId`, `productTypeId`, `startRange`, `endRange`, `referenceCategoryId`, `lenderId`, `score`, `weightPct`, `REFNUM`, `createdBy`, `updatedBy`, `activeStatus`) VALUES ('17', '6', '0', '3000000', '1', '0', '90', '100', '1', 'Vastu', 'Vastu', '1');
+INSERT INTO `staging`.`ref_loan_guidelines` (`refguidelineId`, `productTypeId`, `startRange`, `endRange`, `referenceCategoryId`, `lenderId`, `score`, `weightPct`, `REFNUM`, `createdBy`, `updatedBy`, `activeStatus`) VALUES ('18', '6', '3000001', '7500000', '1', '0', '80', '100', '1', 'Vastu', 'Vastu', '1');
+INSERT INTO `staging`.`ref_loan_guidelines` (`refguidelineId`, `productTypeId`, `startRange`, `endRange`, `referenceCategoryId`, `lenderId`, `score`, `weightPct`, `REFNUM`, `createdBy`, `updatedBy`, `activeStatus`) VALUES ('19', '6', '7500001', '999900000', '1', '0', '75', '100', '1', 'Vastu', 'Vastu', '1');
+
+INSERT INTO `staging`.`ref_interest_rates` (`refInterestRateId`, `lenderId`, `referenceCategoryId`, `candidateScore`, `periodInMonths`, `startRange`, `endRange`, `minRate`, `maxRate`, `REFNUM`, `score`, `createdBy`, `productTypeId`, `OccupationTypeId`, `updatedBy`, `activeStatus`, `ITfiled`, `loantypeid`) VALUES ('310', '0', '90', '0', '0', '0.00', '999999999.99', '11.1500', '11.1500', '9', '0', 'Vastu', '6', '2', 'Vastu', '1', '1', '3');
+INSERT INTO `staging`.`ref_interest_rates` (`refInterestRateId`, `lenderId`, `referenceCategoryId`, `candidateScore`, `periodInMonths`, `startRange`, `endRange`, `minRate`, `maxRate`, `REFNUM`, `score`, `createdBy`, `productTypeId`, `OccupationTypeId`, `updatedBy`, `activeStatus`, `ITfiled`, `loantypeid`) VALUES ('311', '0', '90', '0', '0', '0.00', '999999999.99', '11.1500', '11.1500', '9', '0', 'Vastu', '6', '2', 'Vastu', '1', '0', '3');
+
+UPDATE `staging`.`ref_interest_rates` SET `minRate` = '8.3000', `maxRate` = '8.3000' WHERE (`refInterestRateId` = '310');
+UPDATE `staging`.`ref_interest_rates` SET `minRate` = '8.3000', `maxRate` = '8.3000' WHERE (`refInterestRateId` = '311');
+
+select * from staging.ref_interest_rates where lenderid = 0 and producttypeid = 6
+
+
  
 
 
