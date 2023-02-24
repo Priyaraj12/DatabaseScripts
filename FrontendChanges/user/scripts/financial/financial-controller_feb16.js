@@ -96,9 +96,9 @@ var Ps = Ps || {};
 						
 
 /* Commented out by Priyaraj on Feb 15, 2023 as https://api.probe42.in/probe_lite/companies API throwing forbidden error */
-/* Reusing this place but calling financialService.getorganizationlistusingemployernameandcategory instead of financialService.getcompanylistusingprobe
-on 23-02-2023 by Priyaraj */
-/*financialService.getcompanylistusingprobe(val)
+								/* $scope.orgType = function(val) {
+									if($('#OrganisationName').val().length >= 3){
+									financialService.getcompanylistusingprobe(val)
 											.then(
 													function successCallback(
 															response) {
@@ -110,49 +110,13 @@ on 23-02-2023 by Priyaraj */
 														var ss = JSON.parse(localStorage.getItem('companiesData'));
 														$scope.companyList=ss.data.companies;
 													});
-													*/
-								 $scope.orgType = function(employerName,categoryId) {									 
-									 var occupationType = document.getElementById("occupationType").value;
-									 occupationType = occupationType.charAt(occupationType.length-1);
-									 //alert("occupationType.." + occupationType);
-									 var data = $.param({
-												'employerName' : employerName,
-												'categoryId' : parseInt(occupationType),
-											});
-									 //alert("data.." + data);
-									if($('#OrganisationName').val().length >= 3){					
-									
-									financialService.getorganizationlistusingemployernameandcategory(data)
-											.then(
-													
-													function successCallback(
-															response) {
-														var resData=response.data.Result;
-														//alert(resData);
-														
-														$scope.orgNameArray = JSON.parse(resData);
-														//alert("orgNameArray.." + $scope.orgNameArray);
-														/*$scope.orgNameCUN= orgNameArray.data.companies;
-														
-														localStorage.setItem('companiesData',response.data.Page);
-														var ss = JSON.parse(localStorage.getItem('companiesData'));*/
-														//$scope.companyList=ss.data.companies;
-														$scope.destArray = _.uniq($scope.orgNameArray, function(x) {
-											                    });
-														$scope.loader = false;
-														//$scope.companyList = $scope.orgNameArray;
-													},
-													function errorCallback(
-																response) {
-													}
-												);
 								} else{
 									
 								}
 								} 
 
 
-								/*$scope.change = function(legalName) {
+								$scope.change = function(legalName) {
 									financialService.getcompanylistusingcin(
 											legalName.cin).then(
 											function successCallback(response) {

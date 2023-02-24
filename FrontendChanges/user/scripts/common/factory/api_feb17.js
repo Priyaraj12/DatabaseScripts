@@ -41,9 +41,6 @@
                     //getcompanylistusingprobe					: api.baseUrl + '/user/getcompanylistusingprobe?sessionId=',
                     //getcompanylistusingcin						: api.baseUrl + '/user/getcompanylistusingcin?sessionId=',
 					//Commented by Priyaraj on 17-02-2023 as proble URL is still working besides method got commented out
-					//Added by Priyaraj on 23-02-2023 to get organizationlist using employer name and employer category
-					getorganizationlistusingemployernameandcategory: api.baseUrl + '/user/getorganizationlistusingemployernameandcategory?sessionId=',
-					//
                     getCoApplicantId                            : api.baseUrl + '/user/getCoApplicantId?sessionId=',
                     getCoApplicantDetailsUsingListOfUserId      : api.baseUrl + '/user/getCoApplicantDetailsUsingListOfUserId?sessionId=',
                     getListOfOccupationCategory			        : api.baseUrl + '/user/getListOfOccupationCategory?sessionId=',
@@ -131,9 +128,6 @@
                     getListOfAllGetMethodFinancial              : api.baseUrl + '/user/getListOfAllGetMethodFinancial?sessionId=',
                     getCoApplicantDetailsUsingListOfUserId      : api.baseUrl + '/user/getCoApplicantDetailsUsingListOfUserId?sessionId=',
                     getListOfOccupationCategory			        : api.baseUrl + '/user/getListOfOccupationCategory?sessionId=',
-					//Added by Priyaraj on 24-02-2023 to get organizationlist using employer name and employer category
-					getorganizationlistusingemployernameandcategory: api.baseUrl + '/user/getorganizationlistusingemployernameandcategory?sessionId=',
-					//
                     
         };
 

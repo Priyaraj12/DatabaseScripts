@@ -1812,7 +1812,6 @@ ending comment */
 	}
 
 	function save(userinfo, incomeinfo, loaninfo,salaryDatas, e) {
-		//alert("in save..");
 	 var coid = getCookie('coAppId');
 	 
 	incomedet = [];
@@ -2060,46 +2059,6 @@ ending comment */
 	});
 	}*/
 	/* Commented out by Priyaraj on Feb 15, 2023 as https://api.probe42.in/probe_lite/companies API throwing forbidden error */
-	$scope.orgType = function(employerName,categoryId) {									 
-									 var occupationType = document.getElementById("occupationType").value;
-									 occupationType = occupationType.charAt(occupationType.length-1);
-									 //alert("occupationType.." + occupationType);
-									 var data = $.param({
-												'employerName' : employerName,
-												'categoryId' : parseInt(occupationType),
-											});
-									 //alert("data.." + data);
-									if($('#OrganisationName').val().length >= 3){					
-									
-									getCoApplicantFinancialService.getorganizationlistusingemployernameandcategory(data)
-											.then(
-													
-													function successCallback(
-															response) {
-														var resData=response.data.Result;
-														//alert(resData);
-														
-														$scope.orgNameArray = JSON.parse(resData);
-														//alert("orgNameArray.." + $scope.orgNameArray);
-														/*$scope.orgNameCUN= orgNameArray.data.companies;
-														
-														localStorage.setItem('companiesData',response.data.Page);
-														var ss = JSON.parse(localStorage.getItem('companiesData'));*/
-														//$scope.companyList=ss.data.companies;
-														$scope.destArray = _.uniq($scope.orgNameArray, function(x) {
-											                    });
-														$scope.loader = false;
-														//$scope.companyList = $scope.orgNameArray;
-													},
-													function errorCallback(
-																response) {
-													}
-												);
-								} else{
-									
-								}
-								} 
-
 	function dirtyCheck(user, income, loan, action) {
 	if ($scope.checkassets != true) {
 	$scope.omitdata = [];
