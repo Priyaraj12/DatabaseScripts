@@ -1,0 +1,321 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getmyLPi_new`(in myuser int, in banker int, in Lpicount1 int ,in debug bool, out myLPi decimal(10,4))
+BEGIN
+-- Desc:		Calculates Lpi for each Lender for a given user	
+-- Called by:	getmyLPi_ALL_Lenders
+-- Calls:		getALLProfileScore, calculateUserIncome, calculateUserLoans, getAssetScore, get_eligibility_loan_amount, getFinVerficationScore, insert_single_lender_lpi_full
+    
+    
+    declare totalincome, loans, myEMI, myeligibilityamount, myrevisedEMI, myLenderLoanAmount, residualincome,
+			primaryincome, EMIScore, myEMIScore, LTVScore1, EMIRatio, myassetvalue, myLTVScore, myLTVScoreCatweightapp,
+			higherEMI, payrollLoans, grossincome, mydeductions, myloanvalue, LTV1, LTVScore, currentEMI, 
+            myeligibilityEMI, myloanEMI, myLenderEMI, Score1, Score2, minRate1, maxRate1, currentFOIR,
+			maxLTV, myCreditScore,myCreditScoreCatweightapp, CreditScore1,CreditScoreCatweightapp, RBIGuidedLoanAmount, 
+			CreditScore2, AssetScore, myVerificationScore, eligibleLoanAmount decimal (18,4);
+	
+	declare ProfileCategoryId, myId, refCategory, AssetCategoryId, myREFNUM, term1, myproductid,  term, id1, myterm, 
+			myeligmonths, revisedTerm, CreditScoreId1, rejectFlag, temp, extensionIndicator, mycreditScoreREFNUM,occid,userCBScore int;
+	
+	declare ProfileScore, RBILTVRate, myrate,tempemipercent,IncomeRangeScore,FOIRScore,ProductTypeScore,OwnershipScore decimal (18,4);
+		  
+	declare CreditScoreLenderRefId, CreditScoreVCRefid , EMIScoreLenderRefId, EMIScoreVCRefId,retval int;
+    
+	declare LTVScoreLenderRefId, LTVScoreVCRefid int;
+		  
+		set  myLPi = -1.00;  
+        
+        -- Commented delete as it is set to active status to 0 for all lenders in getLPialllenders
+        -- delete from user_lender_reject where userid=myuser and lenderId=banker;
+        
+	
+	/* Prernna commented on July 12 as Ref ID calls not needed in this SP now
+	
+	call getReferenceCategoryId ('Credit Score', banker, CreditScoreLenderRefId, CreditScoreVCRefid); 
+	call getReferenceCategoryId ('EMI Score', banker, EMIScoreLenderRefId, EMIScoreVCRefid); 
+	call getReferenceCategoryId ('LTV Score', banker, LTVScoreLenderRefId, LTVScoreVCRefid);  
+	if (debug) then  SELECT 'Past Refids'; end if;
+	
+	if CreditScoreVCRefid = null or EMIScoreVCRefId = null or LTVScoreVCRefId = null then select myLPI;
+		
+        else
+      
+		
+		BEGIN ******/
+  
+		   
+    
+			/*********************************
+			Income/Loan Calculation Calls     
+			**********************************************/
+			call  calculateUserIncome(myuser, banker, 0, residualincome, myeligmonths, primaryincome);
+			if debug then select 'Total Residual Income', residualincome; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('Total Residual Income = ', residualincome);
+			call  calculateUserLoans(myuser, banker, 0, currentEMI);
+			if debug then select ' User Existing Loan Values', currentEMI; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat(' User Existing Loan Values = ', currentEMI);
+		
+			/*********************************
+			Eligible Tenure Calculations    
+			**********************************************/
+        
+			-- if myeligmonths < myterm then set myterm=myeligmonths; end if; Moved check after getting myterm PGupta 7/13/18
+         
+			set  currentEMI=ifnull(currentEMI,0); 
+			set loans = ifnull(loans, 0);
+			set loans = currentEMI; -- updated by P Gupta 07/13/18
+              
+			select sum(ifnull(assetValue,0)), sum(ifnull(loanValue,0)), max(ifnull(loanTermId,0)), max(productTypeId)
+					into myassetvalue, myloanvalue, myterm, myproductid  
+                    from asset_financing a 
+					where userId = myuser and activeStatus>0;
+			if myeligmonths < myterm then set myterm=myeligmonths; end if; -- PGupta 7/13/18
+        
+			-- Profile Verification by checking crif report-Not used anymore
+			select userID into myId from user_employment where userId = myuser and activeStatus >0;
+			-- 	select  'Tst111', userid, PAN, aadharCard, activeStatus, rationCard, ifnull(creditScore,0)  from user_credit_info where activeStatus > 0 and userId=myuser;
+			if ifnull(myId,0)=0 then
+				begin
+					SELECT 'User Summary -Before setting 0';
+					select 0,0,0,0,0,0,1,120
+					into
+					loans , residualincome , currentEMI , myassetvalue , myloanvalue , mycreditScoreREFNUM, myterm;
+				end;
+			end if;   
+       
+			/*********************************
+			Emi Calculations    
+			**********************************************/
+ 
+			-- Added by Vidhya on 7th Jan 2019
+			-- Get the Occupation id from user emplyment table 
+        
+			/******** commented by prernna on July 12 as emiPercent is not needed in SP 
+			set occid=0;
+			select OccupationTypeId into occid from user_employment where userid = myuser;
+			Select emiPercent into tempemipercent from ref_emi_config g 
+			where lenderId = banker and productTypeId = myproductid and g.OccupationTypeId =occid
+			and income  between startRange and endRange;   *********/
+       
+			/* Commenting this on Mar 8th 2019 because thios calculation hads been moved to calculateuserIncome SP
+			Select income * emiPercent/100 into residualincome from ref_emi_config g 
+			where lenderId = banker and productTypeId = myproductid and g.OccupationTypeId =occid
+			and income  between startRange and endRange;*/ 
+       
+			-- set residualincome =income;    commented by prernna as setting residualincome directly from calculateUserIncome output
+        		
+		
+			set myEMI = residualincome - currentEMI; 
+			if myEMI < 0 then set myEMI =0; end if;        
+        
+			/*********************************
+			Eligible loan amount Calculation calls       
+			**********************************************/
+ 	
+			set extensionIndicator = ifnull(extensionIndicator,0);
+			select sum(userGrossIncome/frequencyType) into grossincome from user_income i  where i.userid=myuser and i.activeStatus > 0;
+	        set grossincome = ifnull(grossincome,0);
+            set mydeductions = ifnull(mydeductions,0);
+            set payrollLoans = ifnull(payrollLoans,0);
+
+			if debug then select 'Deduction Selects', grossincome, mydeductions, loans, payrollLoans; end if; 
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('Deduction Selects','.. grossincome = ',grossincome,'..mydeductions = ',mydeductions,'..loans = ',loans,'..payrollLoans = ',payrollLoans);			
+			call get_eligibility_loan_amount(myuser, myterm, myassetvalue, myloanvalue, extensionIndicator, 
+								myEMI+payrollLoans, banker, myproductid, 0, myeligibilityamount, myLenderLoanAmount, revisedTerm, myrate,
+								myrevisedEMI );  
+                             
+			if debug then select 'AFter Elig', myuser, myterm, myassetvalue, myloanvalue, extensionIndicator, 
+								myEMI+payrollLoans, banker, myproductid, debug, myeligibilityamount, myLenderLoanAmount, revisedTerm, myrate,
+								myrevisedEMI;
+			end if;
+ 
+        
+        
+              
+			/*********************************
+			Profile score calls       
+			**********************************************/
+			call getALLProfileScore (myuser , banker,Lpicount1, 0,  ProfileScore);
+			set ProfileScore = ifnull(ProfileScore,0);
+			if (debug) then  SELECT  ProfileScore;  end if;
+            -- insert into getmyLpi_All_Lenders_consolelogs select concat('ProfileScore..',ProfileScore);
+            
+			/*********************************
+			FOIR score calls Added by Vidhya Feb 26th 2019       
+			**********************************************/
+        
+			set currentFOIR = 0;
+            -- Added by Vidhya Sep 11th 2019 Check for residualincome <>0 before calculating currentFOIR
+			if currentEMI > 0 and residualincome<>0 then set currentFOIR = currentEMI*100/residualincome; end if;
+        		
+			if (debug) then SELECT 'Before FOIR Score', currentFOIR, currentEMI, residualincome; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('Before FOIR Score',currentFOIR,'..currentEMI = ',currentEMI,'..residualincome = ',residualincome);
+			call getFOIRScore(myuser,banker,currentFOIR,Lpicount1,0,FOIRScore);
+			if (debug) then SELECT FOIRScore; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('..FOIRScore = ',FOIRScore);
+			/*********************************
+			LTV  score calls Added by Vidhya Mar 11th 2019  
+			**********************************************/
+           
+			call getLTVScore(myuser,banker,myassetvalue,myloanvalue,Lpicount1,0,myLTVScore);
+			if (debug) then SELECT myLTVScore; end if;        
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('..myLTVScore = ',myLTVScore);
+       
+			/*********************************
+			Income/Loan Verification  Score calls      
+			**********************************************/
+			/*call getFinVerficationScore(myuser, banker, 0, grossincome-mydeductions, loans, myVerificationScore);
+			if (debug) then SELECT myVerificationScore; end if;  */
+			
+            
+            /*********************************
+			Income Proof Score calls      --Added On Jan 29th 2020
+			**********************************************/
+			call getIncomeProofScore(myuser,banker,Lpicount1,0,myVerificationScore);
+			if (debug) then SELECT myVerificationScore; end if;  
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('..myVerificationScore = ',myVerificationScore);
+			/*********************************
+			ProductType score calls Added by Vidhya Feb 26th 2019       
+			*********************************************/
+			-- call getProductTypeScore(myuser,banker,Lpicount1,0,ProductTypeScore);  
+                
+			/*********************************
+			Credit  score calls Added by Vidhya Mar 11th 2019       
+			**********************************************/
+           
+			call getallCreditScore(myuser,banker,LPicount1,0,myCreditScore);
+			if (debug) then  SELECT myCreditScore; end if;  	
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('..myCreditScore = ',myCreditScore);
+			/*********************************
+				Asset score Calculations    
+			**********************************************/
+			-- set AssetScore=15;
+		    -- call getAssetScore(myuser, banker,Lpicount1, 0,  AssetScore);       
+			-- set AssetScore = ifnull(AssetScore,0);
+			-- if (debug) then  SELECT AssetScore; end if;
+        
+			/*********************************
+			Income Range score calls Added by Vidhya Feb 25th 2019       
+			**********************************************/
+     
+			-- call getALLIncomeRangeScore(myuser, banker,Lpicount1, 0,IncomeRangeScore);
+			-- if (debug) then SELECT IncomeRangeScore; end if;
+        
+			/*********************************
+			Ownership score calls Added by Vidhya Apr 25th 2019    
+              -- Updated By Vidhya 30 Jan 2020 -Replacing OwnershipScore with LoanOwnershipScore
+	
+			**********************************************/
+     
+			-- call getOwnerShipScore(myuser, banker,Lpicount1, 0,OwnershipScore);
+            call getLoanOwnerShipScore(myuser, banker,Lpicount1, 0,OwnershipScore);
+			if (debug) then SELECT OwnershipScore; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('..OwnershipScore = ',OwnershipScore);
+			if (debug) then  SELECT 'User Summary' ,loans,residualincome,tempemipercent,currentEMI,myEMI,myassetvalue,myloanvalue,LTV1, 
+					mycreditScore; end if;
+   
+ 
+			/*********************************
+			Final LPi Calculation  
+			**********************************************/
+        			
+			set myLPi = (ProfileScore
+					+ FOIRScore
+                    + myLTVScore
+                    + myVerificationScore
+                --    + ProductTypeScore
+                    + myCreditScore
+                --    + AssetScore
+                  --  +IncomeRangeScore
+                    +OwnershipScore);
+			if (debug) then select 'All scores',ProfileScore
+										   ,FOIRScore
+                                           ,myLTVScore
+                                           ,myVerificationScore
+                                  --         ,ProductTypeScore
+                                           ,myCreditScore
+                                  --         ,AssetScore
+                                 --          ,IncomeRangeScore
+                                           ,OwnershipScore
+                                           ,myLPi,myeligibilityamount, myloanvalue, myLenderLoanAmount; end if;
+			
+			/* Removed proportionate reduction of LPI - PGupta 07/13/2018
+			if myeligibilityamount < myloanvalue then 
+				set myLPi = myLPi * myeligibilityamount/myloanvalue; 
+			end if;
+			*/
+			if banker=0 then 
+				begin
+					call insert_user_category_score( myuser,myuser,LPicount1,banker,'Overall LPI (Calculated)',0,'Overall Score',99,100,myLpi,0,retval);
+				end;
+			end if; 
+			-- Reduction of LPI for Minimum 5,00,000 eligible amount
+			if myeligibilityamount < 500000 then 
+				set myLPi = 10; 
+				if banker=0 then 
+				begin
+					call insert_user_category_score( myuser,myuser,LPicount1,banker,'LPI adjusted(EL < 5L)',0,'Overall Score',98,100,myLpi,0,retval);
+				end;
+			end if; 
+			end if;
+        
+			/*call getUserCBScore(myuser,0,userCBScore); Commented On Mar 6th 2020 as Credit score checks added elsewhere
+            if (debug) then  SELECT 'User Summary' ,userCBScore; end if;
+
+         
+            if ((userCBScore >=300) and (userCBScore <550)) then 
+				set myLPi = 10; 
+				
+			end if;*/
+			-- 	set loanValue1 = myeligibilityamount;
+			--    set term1 = revisedTerm;
+            
+			-- select max(score*weightPct/100) into maxLTV from ref_loan_guidelines where
+			-- 	lenderid in (0, banker) and myassetValue between startRange and endRange; 
+        
+
+			--  SELECT periodInMonths, minRate, maxRate INTO term , minRate1 , maxRate1 FROM ref_interest_rates WHERE
+			-- 	lenderId = banker AND periodInMonths IN (SELECT MAX(periodInMonths) FROM ref_interest_rates r WHERE periodInMonths < term1);
+			-- 		if (debug) then select 	'before single insert call', 	myuser, banker, myLPi, residualincome ,loanValue1 , term1 ; end if;
+		
+			select myuser, count(*) into temp, rejectFlag from user_lender_reject where userId=myuser and lenderId=banker and activeStatus>0
+			group by myuser;
+
+			set myeligibilityEMI= myeligibilityamount * myrate/1200 * 
+							round((pow(1 + (myrate/1200), revisedterm) / (pow(1 + (myrate/1200), revisedterm) - 1)),2);
+
+			set myloanEMI= myloanvalue * myrate/1200 * 
+							round((pow(1 + (myrate/1200), revisedterm) / (pow(1 + (myrate/1200), revisedterm) - 1)),2);
+
+			set myLenderEMI= myLenderLoanAmount * myrate/1200 * 
+							round((pow(1 + (myrate/1200), revisedterm) / (pow(1 + (myrate/1200), revisedterm) - 1)),2);
+  
+			if (debug) then select 'before single insert',  myuser, banker, myLPi, residualincome, myassetvalue, myLenderLoanAmount,
+                myLenderEMI, myeligibilityamount, myeligibilityEMI,  myloanvalue,  myloanEMI, myrevisedEMI,
+                                    revisedTerm, myrate, maxLTV, currentEMI, rejectFlag, debug, id1,Lpicount1; end if; 
+			
+                                        
+			SET id1 = -1;
+               --  select 'real insert';
+			   
+			  
+			
+			if (myLPi < 10) then set myLPi	=10;end if; -- Added by Vidhya Feb 29th 2020 for resetting Lpi to 10 if it is in negative
+			
+            call insert_single_lender_lpi_full(myuser, banker, myLPi, residualincome, myLenderLoanAmount,
+                ROUND(myLenderEMI,-2), myeligibilityamount, ROUND(myeligibilityEMI,-2),  myloanvalue, ROUND(myloanEMI,-2),
+										revisedTerm,myrate, maxLTV, currentEMI, rejectFlag, debug,Lpicount1,id1); 
+            
+			if (debug) then  SELECT 'after insertrssss', myuser, banker, myLPi,  id1; end if;		 
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('after insertrssss','..myuser = ',myuser,'.. banker = ',banker,'..myLPi = ',myLPi,'..id1=',id1);
+			
+			if (id1=-1) then  set myLPi = -1; end if;
+			
+			if banker=0 then 
+				begin
+					call insert_user_category_score( myuser,myuser,LPicount1,banker,'Overall LPI(Adjusted)',0,'Overall Score',0,100,myLpi,0,retval);
+				end;
+			end if;
+			if (debug) then  SELECT myLPi; end if;
+
+		-- END; Prernna commented on July 12 for RefID call removal
+	-- END IF; Prernna commented on July 12 for RefID call removal
+END
