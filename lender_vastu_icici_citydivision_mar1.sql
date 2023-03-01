@@ -329,6 +329,8 @@ INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDi
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1181', 'Mysuru', 'Karnataka', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1182', 'Nanjangud', 'Karnataka', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 
+select * from ref_lender_citydivision where cityDivisionlenderId = 1182;
+-- Need to continue from tomorrow
 
 
 
