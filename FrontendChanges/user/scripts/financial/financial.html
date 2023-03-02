@@ -177,6 +177,18 @@
                                                 <div ng-show="userInfo.categorydetail == null"
 											style="color: red;display: none;" role="alert">Please enter valid details</div>
                                     </div> -->
+<!--Geetha -->
+
+	
+									<div class="col-md-3 form-group floating-label" ng-show="userInfo.occupationTypeId==1">
+                                        <select class="form-control floating-select disninput" id="businessConstitution" ng-model="userInfo.businessConstitution" 
+                                        ng-options="businessConstitution.id as businessConstitution.name for businessConstitution in businessConstitutionList">
+                                        </select>
+                                        <label class="labelmarg" for="businessConstitution" style="top: -18px;">Employer Constitution <i class="fa fa-info-circle" title="What is the constitution of your business?"></i> <span class="mandoryclr"> *</span></label>
+                                    </div>
+	
+
+<!-- Geetha -->
                                 </div>
 								</div>
 								</div>

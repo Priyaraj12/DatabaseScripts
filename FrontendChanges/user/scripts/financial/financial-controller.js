@@ -460,6 +460,9 @@ on 23-02-2023 by Priyaraj */
 											{ name: 'Limited Liability Partnership (LLP)', id: 6 },
 											{ name: 'Other', id: 7 },
 											{ name: 'Not Registered', id: 8 },
+                    	{ name: 'Government', id: 9 },
+											{ name: 'Public Sector Undertaking(PSU)', id: 10 },
+											{ name: 'Not for profit', id: 11 },
 										];
 									$scope.employeeCountList =
 										[ 

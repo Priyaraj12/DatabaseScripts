@@ -124,9 +124,18 @@
 										>
                                          <span class="form-control-feedback" > </span>
                                           <label for="OrganisationName" class="form-control-placeholder font-size-label orgName">Employer / Organisation Name 
-                                          <i class="fa fa-info-circle" title="Please type your employer name here and select. if you can�t find in our list then just add the name.";></i><span class="mandoryclr"> *</span> </label>
+                                          <i class="fa fa-info-circle" title="Please type your employer name here and select. if you can t find in our list then just add the name.";></i><span class="mandoryclr"> *</span> </label>
                                             <div ng-if="userInfo.employerName==null && userInfo.occupationTypeId == 1"
 											style="color: red;display: none;" role="alert" id="organvalid">Please enter Organisation Name</div>
+                                    </div>
+
+
+									<div class="col-md-3 form-group floating-label" ng-show="userInfo.occupationTypeId==1 || userInfo.occupationTypeId == 2 || userInfo.occupationTypeId == 3||(userInfo.occupationTypeId==4 && userInfo.occupationcategoryid==993) || (userInfo.occupationTypeId==5 && userInfo.occupationcategoryid==995)">
+                                        <select class="form-control floating-select disninput" id="primaryBank" ng-model="userInfo.primaryBank" 
+                                        ng-options="primaryBank.id as primaryBank.name for primaryBank in primaryBankList">
+                                        <option hidden></option>
+                                        </select>
+                                        <label class="labelmarg" for="primaryBank" style="top: -18px;">Primary Bank Account <i class="fa fa-info-circle" title="category"></i> <span class="mandoryclr"> *</span></label>
                                     </div>
 
 							<!--		<div class="col-md-3 form-group">
@@ -159,13 +168,6 @@
                                                 <div ng-if="userInfo.yearsofServicewithEmployer==null"
 											style="color: red;display: none;" role="alert" class="totalExpValid1">Please enter Current Experience (In Years)</div>
                                     </div>
-									<div class="col-md-3 form-group floating-label" ng-show="userInfo.occupationTypeId==1 || userInfo.occupationTypeId == 2 || userInfo.occupationTypeId == 3||(userInfo.occupationTypeId==4 && userInfo.occupationcategoryid==993) || (userInfo.occupationTypeId==5 && userInfo.occupationcategoryid==995)">
-                                        <select class="form-control floating-select disninput" id="primaryBank" ng-model="userInfo.primaryBank" 
-                                        ng-options="primaryBank.id as primaryBank.name for primaryBank in primaryBankList">
-                                        <option hidden></option>
-                                        </select>
-                                        <label class="labelmarg" for="primaryBank" style="top: -18px;">Primary Bank Account <i class="fa fa-info-circle" title="category"></i> <span class="mandoryclr"> *</span></label>
-                                    </div>
 									<div class="col-md-3 form-group floating-label"	id="itfiled" ng-show="userInfo.occupationTypeId==1 || userInfo.occupationTypeId == 2 || userInfo.occupationTypeId == 3||(userInfo.occupationTypeId==4 && userInfo.occupationcategoryid==993) || (userInfo.occupationTypeId==5 && userInfo.occupationcategoryid==995)">
 											<label for="itfiled" ng-show="userInfo.occupationTypeId==1" class="appliradio">Have Payslips/Form 16? <span class="mandoryclr">*</span>
 											</label>
@@ -184,6 +186,18 @@
 												</label>
 											</div>
 									</div>
+<!--Geetha -->
+
+	
+									<div class="col-md-3 form-group floating-label" ng-show="userInfo.occupationTypeId==1">
+                                        <select class="form-control floating-select disninput" id="businessConstitution" ng-model="userInfo.businessConstitution" 
+                                        ng-options="businessConstitution.id as businessConstitution.name for businessConstitution in businessConstitutionList">
+                                        </select>
+                                        <label class="labelmarg" for="businessConstitution" style="top: -18px;">Employer Constitution <i class="fa fa-info-circle" title="What is the constitution of your business?"></i> <span class="mandoryclr"> *</span></label>
+                                    </div>
+	
+
+<!-- Geetha -->
                                     </div>
 								</div>
 								</div>
