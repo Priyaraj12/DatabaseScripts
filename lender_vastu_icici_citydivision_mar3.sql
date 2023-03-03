@@ -332,7 +332,7 @@ INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDi
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1184', 'Manjeri', 'Kerala', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1185', 'Nanjangud', 'Karnataka', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 
-select * from ref_lender_citydivision where cityDivisionlenderId = 1182;
+select * from ref_lender_citydivision where cityDivisionlenderId = 1271;
 -- Need to continue from tomorrow
 -- As Nizamabad repeated twice
 DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1139');
@@ -343,6 +343,8 @@ DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = 
 -- As Nanjangud got repeated
 DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1185');
 
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1222');
+
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1185', 'Lucknow', 'Uttar Pradesh', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1186', 'Rae Bareilly', 'Uttar Pradesh', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1187', 'Sitapur', 'Uttar Pradesh', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
@@ -350,6 +352,8 @@ INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDi
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1189', 'East Champaran', 'Bihar', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 
 DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1137');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1074'); -- Eluru repeated twice
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1111'); -- Ahmednagar repeated twice
 
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1190', 'Fatehpur', 'Uttar Pradesh', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1191', 'Pauri', 'Uttarakhand', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
@@ -357,6 +361,159 @@ INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDi
 INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1193', 'Madhubani', 'Bihar', '11', '1', '2023-03-01 19:02:02', '2023-03-01 19:02:02', 'Vastu', 'Vastu');
 
 DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1130');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1129');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1148'); -- As Sangrur repeated twice
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1118'); -- As Manipuri repeated twice
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1114'); -- As Nagpur repeated twice
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1194', 'Vijayawada', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1195', 'Machilipatnam', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1196', 'Gudivada', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1197', 'Guntur', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1198', 'Tenali', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1199', 'Narasaraopet', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1200', 'Prakasam', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1201', 'Bhimavaram', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1202', 'Bhilwara', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1203', 'Chittorgarh', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1204', 'Udaipur', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+
+
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1205', 'Tumakuru', 'Karnataka', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1206', 'Kota', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1207', 'Shimla', 'Himachal Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1208', 'Sirohi', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1209', 'Sikar', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1210', 'Jhunjhunu', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1211', 'Shivamogga', 'Karnataka', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1212', 'Haveri', 'Karnataka', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1213', 'Ballari', 'Karnataka', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1263', 'Gudur', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1264', 'Valsad', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1265', 'Navsari', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1266', 'Valsad', 'DADRA & NAGAR HAVELI', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1267', 'Faizabad', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1268', 'Varanasi', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1269', 'Basti', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1270', 'Gorakhpur', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1271', 'Bhatinda', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1214', 'Bikaner', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1215', 'Koraput', 'Odisha', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1216', 'Jabalpur', 'Madhya Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1217', 'Bhagalpur', 'Bihar', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1218', 'Purnea', 'Bihar', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1219', 'Mahabubnagar', 'Telangana', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1220', 'Chittoor', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1221', 'Dungarpur', 'Rajasthan', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1222', 'Koraput', 'Odisha', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1223', 'Rewa', 'Madhya Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1224', 'Jalandhar', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1225', 'Kapurthala', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1226', 'Srirangam', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1227', 'Karur', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1228', 'Dindigul', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1229', 'Madurai', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1230', 'Namakkal', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1231', 'Idukki', 'Kerala', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1232', 'Malegaon', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1233', 'Sangli', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1234', 'Hoshangabad', 'Madhya Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1235', 'Amritsar', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1236', 'Gurdaspur', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1237', 'Jalandhar', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1238', 'Kapurthala', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1239', 'Saharanpur', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1240', 'Ramanathapuram', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1241', 'Theni', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1242', 'Virudhunagar', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1243', 'Sivaganga', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1244', 'Tiruvalla', 'Kerala', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1245', 'Panchmahals', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1246', 'Kolhapur', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1247', 'Puri', 'Odisha', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1248', 'Singhbhum', 'Jharkhand', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1249', 'Muzaffarpur', 'Bihar', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1250', 'Tirupati', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1251', 'Tiruvannamalai', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1252', 'Kanchipuram', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1253', 'Vellore', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1254', 'Tirupattur', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1255', 'Kanchipuram', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1256', 'Deoria', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1257', 'Yeotmal', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1258', 'Bhavnagar', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1259', 'Surat', 'Gujarat', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1260', 'Dhule', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1261', 'Jalgaon', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1262', 'Bhusaval', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1272', 'Faridkot', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1273', 'Ferozpur', 'Punjab', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1274', 'Ballia', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1275', 'Banda', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1276', 'Bilaspur', 'Chattisgarh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1277', 'Patna', 'Bihar', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1278', 'Mirzapur', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1279', 'Ghazipur', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1280', 'Azamgarh', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1281', 'Gaya', 'Bihar', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1282', 'Hazaribagh', 'Jharkhand', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1283', 'Hindupur', 'Andhra Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1284', 'Bhopal', 'Madhya Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1285', 'Ballia', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1286', 'Mirzapur', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1287', 'Nanded', 'Maharashtra', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1288', 'Tirunelveli', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1289', 'Kovilpatti', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1290', 'Tuticorin', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1291', 'Kanniyakumari', 'Tamil Nadu', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1292', 'Morena', 'Madhya Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1293', 'Bareilly', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_citydivision` (`cityDivisionlenderId`, `cityDivision`, `state`, `lenderid`, `activestatus`, `createdon`, `updatedon`, `createdby`, `updatedby`) VALUES ('1294', 'Budaun', 'Uttar Pradesh', '11', '1', '2023-03-03 19:02:02', '2023-03-03 19:02:02', 'Vastu', 'Vastu');
+
+select cityDivision,count(cityDivision) from ref_lender_citydivision where lenderid = 11 group by cityDivision having count(cityDivision) > 1;
+-- Need to check whether should we delete duplicate too
+select * from ref_lender_citydivision where lenderid = 11 and citydivision in 
+(select cityDivision from ref_lender_citydivision where lenderid = 11 group by cityDivision having count(cityDivision) > 1
+order by cityDivision);
+
+-- As observed duplicate entries deleted the below
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1111');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1114');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1117');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1121');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1132');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1135');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1179');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1201');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1237');
+
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1238');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1255');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1285');
+DELETE FROM `staging`.`ref_lender_citydivision` WHERE (`cityDivisionlenderId` = '1286');
+
+
+
+
+
+
+
+
+
 
 
 
