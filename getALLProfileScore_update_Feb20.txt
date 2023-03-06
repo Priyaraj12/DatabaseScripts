@@ -16,7 +16,7 @@ declare  averageProfileScore, ProfileScore,ProfileWeightpct  decimal (10,4);
     
     select count(*) into mycount from user_login where myuserid in (userid, primaryUserId) and activeStatus=1;
 	if (debug) then select 'count is:', mycount; end if;
-
+	insert into getmyLpi_All_Lenders_consolelogs select concat('In getALLProfileScore count = ',mycount);
     set averageProfileScore=100.00;
 	set categoryName='Profile';
 	set categoryid=1;
@@ -25,13 +25,14 @@ declare  averageProfileScore, ProfileScore,ProfileWeightpct  decimal (10,4);
 
 		FETCH curs1 INTO myuser, primaryuser;
 		if (debug) then select 'after read', myuser, primaryuser; end if;
-
+		insert into getmyLpi_All_Lenders_consolelogs select concat('after read', '.. myuser = ',myuser,'..primaryuser = ',primaryuser);
 		 IF done THEN LEAVE read_loop; END IF;
 		 select e.occupationtypeid into occid from user_employment e where e.userid=myuser;
 		if (occid=1) or (occid=2) or (occid=3) then 
          call getProfileScore(myuser, primaryuser, banker,Lpicountval, debug, ProfileScore);
 		end if; 
 		if (debug) then select 'within Loop one', myuser,  ProfileScore; end if;
+		insert into getmyLpi_All_Lenders_consolelogs select concat('within Loop one','..myuser = ',myuser,'..ProfileScore = ',ProfileScore);
 		if (occid=1) or (occid=2) or (occid=3) then 
 			set averageProfileScore = least(averageProfileScore ,ifnull(ProfileScore,0)); 
 		end if;	
@@ -39,7 +40,7 @@ declare  averageProfileScore, ProfileScore,ProfileWeightpct  decimal (10,4);
 				set averageProfileScore = averageProfileScore; 
 		end if;	
    		if (debug) then select 'within Loop two', myuser,  ProfileScore, averageProfileScore; end if;
-
+		insert into getmyLpi_All_Lenders_consolelogs select concat('within Loop two','..myuser = ',myuser,'..ProfileScore = ',ProfileScore,'..averageProfileScore = ',averageProfileScore);
 	END LOOP;
 	CLOSE curs1;
     set myProfileScore = 0.00;
@@ -52,4 +53,5 @@ declare  averageProfileScore, ProfileScore,ProfileWeightpct  decimal (10,4);
 	end;
 	end if;
     if (debug) then select averageProfileScore, mycount, myProfileScore; end if;
+	insert into getmyLpi_All_Lenders_consolelogs select concat('..averageProfileScore = ',averageProfileScore,'..mycount = ',mycount,'..myProfileScore = ',myProfileScore);
 END

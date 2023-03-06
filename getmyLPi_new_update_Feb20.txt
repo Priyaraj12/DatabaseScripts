@@ -324,7 +324,7 @@ BEGIN
 										revisedTerm,myrate, maxLTV, currentEMI, rejectFlag, debug,Lpicount1,id1); 
             
 			if (debug) then  SELECT 'after insertrssss', myuser, banker, myLPi,  id1; end if;		 
-       
+			insert into getmyLpi_All_Lenders_consolelogs select concat('after insertrssss','..myuser = ',myuser,'.. banker = ',banker,'..myLPi = ',myLPi,'..id1=',id1);
 			--     (in myuser int, in banker1 int, in lpi1 decimal(10,2), in amount1 decimal (10,2), in rate1 decimal (10,6), in term1 int,out retval decimal(10,4))		
 			if (id1=-1) then  set myLPi = -1; end if;
 			

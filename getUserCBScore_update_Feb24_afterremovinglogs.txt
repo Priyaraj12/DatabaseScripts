@@ -1,4 +1,5 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserCBScore`(in userID int, in debug bool, out CrifScore int)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `
+`(in userID int, in debug bool, out CrifScore int)
 BEGIN
 -- Desc:		Calculates  Lowest of Crif score for a given applicant vs co-applicant
 -- Called by:	getmyLPi_new
