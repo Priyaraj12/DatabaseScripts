@@ -615,6 +615,31 @@ INSERT INTO ref_income_type_score (refIncomeTypeId, incomeTypedesc, referenceCat
 INSERT INTO ref_income_type_score (refIncomeTypeId, incomeTypedesc, referenceCategoryId, lenderId, score, weightPct, REFNUM, createdOn, createdBy, updatedOn, updatedBy, activeStatus, minAmount2, minAmount, maxAmount2, maxAmount, isCoreIncome, OccupationTypeId, Occupation_CategoryId) VALUES ('1196', 'Pension/Annuity', '1', '11', '1', '100', '4', '3/7/2023 15:08', 'Vastu', '3/7/2023 15:08', 'Vastu', '1', '0', '0', '99999999', '99999999', '0', '3', '999');
 INSERT INTO ref_income_type_score (refIncomeTypeId, incomeTypedesc, referenceCategoryId, lenderId, score, weightPct, REFNUM, createdOn, createdBy, updatedOn, updatedBy, activeStatus, minAmount2, minAmount, maxAmount2, maxAmount, isCoreIncome, OccupationTypeId, Occupation_CategoryId) VALUES ('1197', 'Others', '1', '11', '1', '0', '5', '3/7/2023 15:08', 'Vastu', '3/7/2023 15:08', 'Vastu', '1', '0', '0', '99999999', '99999999', '0', '3', '999');
 INSERT INTO ref_income_type_score (refIncomeTypeId, incomeTypedesc, referenceCategoryId, lenderId, score, weightPct, REFNUM, createdOn, createdBy, updatedOn, updatedBy, activeStatus, minAmount2, minAmount, maxAmount2, maxAmount, isCoreIncome, OccupationTypeId, Occupation_CategoryId) VALUES ('1198', 'Bonus', '1', '11', '1', '50', '7', '3/7/2023 15:08', 'Vastu', '3/7/2023 15:08', 'Vastu', '1', '0', '0', '0', '0', '1', '3', '999');
+-- coapplicant failed, so identified and inserted
+INSERT INTO `staging`.`ref_income_type_score` (`refIncomeTypeId`, `incomeTypedesc`, `referenceCategoryId`, `lenderId`, `score`, `weightPct`, `REFNUM`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`, `minAmount2`, `minAmount`, `maxAmount2`, `maxAmount`, `isCoreIncome`, `OccupationTypeId`, `Occupation_CategoryId`) VALUES ('1199', 'Gross Monthly Salary', '1', '11', '1.00', '100', '1', '2023-01-27 15:08:37', 'Vastu', '2023-01-27 15:08:37', 'Vastu', '1', '0.00', '0.00', '99999999.00', '99999999.00', '1', '1', '997');
+-- 1033 userid lpi calculation for lender 11 not shown up. Then updated maximumAgeAtMaturity to 60
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3035');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3039');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3043');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3047');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3051');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3055');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3059');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3063');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3067');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3071');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3075');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3079');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3083');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3087');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3091');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3095');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3099');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3103');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3107');
+UPDATE `staging`.`ref_lender_config` SET `maximumAgeAtMaturity` = '60' WHERE (`reflenderconfigid` = '3111');
+
+
 
 
 
