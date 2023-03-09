@@ -1,0 +1,114 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `calculateUserIncome_functionOne`(in myuser int,  in banker int, 
+																				in debug int, 
+																				out totalIncome decimal(18,4),out coreIncome decimal(18,4),out additionalIncome decimal(18,4),out multipliedcoreIncome decimal(18,4))
+BEGIN
+-- Desc:		Calculate income for each user based on income type(weightage) and frequency
+-- Called by:	getmyLPi_new
+-- Calls:		None
+declare done  boolean;
+declare myRefNum, id1, myid, retval, incomeId, temp, isCoreIncome,isITreqd int;
+declare weight,  myIncome, myamt, myweightIncome,mymultipliedweightIncome,income1, coreIncome1,additionalIncome1 decimal (18,2); 
+declare score1, weightPct1 decimal (10,4); 
+			/* 
+			   Updated to use frequency of income
+			   PGupta 16/07/18
+			*/
+			
+		-- set isITreqd=0;
+        
+       -- select lender_isITreqd from ref_lender_itconfig where lenderid = banker;
+           
+			DECLARE curs1 CURSOR FOR SELECT t.refnum, sum(userGrossIncome) income , sum((userGrossIncome/frequencyType)*t.weightPct/100) weighedIncome,
+					sum(userGrossIncome/frequencyType*t.score*t.weightPct/100) multipliedweighedIncome ,t.isCoreIncome
+					from user_income i 
+                    inner join user_employment e on e.userid= i.userid 
+					inner join ref_income_type t1 on t1.refIncomeTypeId=i.userIncomeTypeId and t1.lenderid=0 and i.activeStatus>0
+					left join ref_occupation_category oc on oc.categoryid=e.occupationcategoryid
+					left join ref_income_type_score t on t.refnum=t1.refnum and t.lenderid=banker and t.occupationtypeId=e.OccupationTypeId and t.Occupation_CategoryId=oc.occupation_cate_score_map
+					where i.userid=myuser and i.activeStatus >0 and i.frequencyType!='99' and e.ITfiled=1
+					group by t.refnum,t.isCoreIncome;
+			-- DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+			
+			DECLARE curs2 CURSOR FOR SELECT t.refnum, sum(userGrossIncome) income , sum((userGrossIncome/frequencyType)*t.weightPct/100) weighedIncome,
+					sum(userGrossIncome/frequencyType*t.score*t.weightPct/100) multipliedweighedIncome ,t.isCoreIncome
+					from user_income i 
+                    inner join user_employment e on e.userid= i.userid 
+					inner join ref_income_type t1 on t1.refIncomeTypeId=i.userIncomeTypeId and t1.lenderid=0 and i.activeStatus>0
+					left join ref_occupation_category oc on oc.categoryid=e.occupationcategoryid
+					left join ref_income_type_score t on t.refnum=t1.refnum and t.lenderid=banker and t.occupationtypeId=e.OccupationTypeId and t.Occupation_CategoryId=oc.occupation_cate_score_map
+					where i.userid=myuser and i.activeStatus >0 and i.frequencyType!='99'
+					group by t.refnum,t.isCoreIncome;
+			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+            
+            set isITreqd=0;
+        
+			-- select lender_isITreqd into isITreqd from ref_lender_itconfig where lenderid = banker;
+            -- commented out and added below condition in order to satisfy itfiled = 0 scenario
+            -- Priyaraj 09-03-2023
+            select itfiled into isITreqd from user_employment where userid = myuser;
+            
+            
+            
+			if isITreqd=1 then
+				BEGIN
+					OPEN curs1;
+					set totalIncome=0;
+					set coreIncome=0;
+					set additionalIncome=0;
+					set multipliedcoreIncome=0;
+					read_loop: LOOP
+						FETCH curs1 INTO  myRefnum, myIncome, myweightIncome,mymultipliedweightIncome,isCoreIncome;
+                        if debug then select 'in if done = ',done,myRefnum, myIncome, myweightIncome,mymultipliedweightIncome,isCoreIncome;end if;
+						IF done THEN LEAVE read_loop; END IF;  
+					 	if debug then select 'coapplicant loop', myRefnum, myIncome, myweightIncome;  end if;                   
+						if ifnull(myweightIncome,0)=0 then set myweightIncome = 0; end if;
+					 -- 	if debug then select 'Ready to add to total income', myIncome, myRefnum, myweightIncome; end if;
+						if isCoreIncome > 0 then 
+							begin
+							set coreIncome = coreIncome + myweightIncome;
+							set multipliedcoreIncome=multipliedcoreIncome + mymultipliedweightIncome;
+							end;
+						else 
+							begin
+							set additionalIncome = additionalIncome + myweightIncome;
+							end;
+						end if;
+						set totalIncome = totalIncome + myweightIncome;
+						if debug then 	select 'cumulate totals', myIncome, myRefnum, myweightIncome, totalIncome,coreIncome,additionalIncome,multipliedcoreIncome; end if;
+					END LOOP;
+					CLOSE curs1; 
+				END;
+			Else 
+				BEGIN
+					OPEN curs2;
+					set totalIncome=0;
+					set coreIncome=0;
+					set additionalIncome=0;
+					set multipliedcoreIncome=0;
+					read_loop: LOOP
+						FETCH curs2 INTO  myRefnum, myIncome, myweightIncome,mymultipliedweightIncome,isCoreIncome;
+                         if debug then select 'in else done = ',done,myRefnum, myIncome, myweightIncome,mymultipliedweightIncome,isCoreIncome;end if;
+						IF done THEN LEAVE read_loop; END IF;  
+					-- 	if debug then select 'coapplicant loop', myRefnum, myIncome, myweightIncome;  end if;                   
+						if ifnull(myweightIncome,0)=0 then set myweightIncome = 0; end if;
+					 -- 	if debug then select 'Ready to add to total income', myIncome, myRefnum, myweightIncome; end if;
+						if isCoreIncome > 0 then 
+							begin
+							set coreIncome = coreIncome + myweightIncome;
+							set multipliedcoreIncome=multipliedcoreIncome + mymultipliedweightIncome;
+							end;
+						else 
+							begin
+							set additionalIncome = additionalIncome + myweightIncome;
+							end;
+						end if;
+						set totalIncome = totalIncome + myweightIncome;
+						if debug then 	select 'cumulate totals', myIncome, myRefnum, myweightIncome, totalIncome,coreIncome,additionalIncome,multipliedcoreIncome; end if;
+					END LOOP;
+					CLOSE curs2;
+				END;
+			END if;
+			
+		 	if (debug) then select 'exiting one function', myweightIncome, myIncome, totalIncome,coreIncome,additionalIncome,multipliedcoreIncome; end if;
+          
+END
