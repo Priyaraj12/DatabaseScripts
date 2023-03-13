@@ -48,6 +48,13 @@ INSERT INTO `staging`.`ref_interest_rates` (`refInterestRateId`, `lenderId`, `re
 INSERT INTO `staging`.`ref_interest_rates` (`refInterestRateId`, `lenderId`, `referenceCategoryId`, `candidateScore`, `periodInMonths`, `startRange`, `endRange`, `minRate`, `maxRate`, `REFNUM`, `score`, `createdOn`, `createdBy`, `productTypeId`, `OccupationTypeId`, `updatedOn`, `updatedBy`, `activeStatus`, `ITfiled`, `loantypeid`) VALUES ('577', '11', '90', '0', '0', '500000.00', '10000000.00', '17.5000', '21.5000', '17', '0', '2023-03-06 19:13:30', 'Vastu', '3', '2', '2023-03-06 19:13:30', 'Vastu', '1', '1', '1');
 INSERT INTO `staging`.`ref_interest_rates` (`refInterestRateId`, `lenderId`, `referenceCategoryId`, `candidateScore`, `periodInMonths`, `startRange`, `endRange`, `minRate`, `maxRate`, `REFNUM`, `score`, `createdOn`, `createdBy`, `productTypeId`, `OccupationTypeId`, `updatedOn`, `updatedBy`, `activeStatus`, `ITfiled`, `loantypeid`) VALUES ('578', '11', '90', '0', '0', '500000.00', '10000000.00', '17.5000', '21.5000', '17', '0', '2023-03-06 19:13:30', 'Vastu', '3', '2', '2023-03-06 19:13:30', 'Vastu', '1', '1', '2');
 
+-- As asked to change ref_lender_itconfig lender_isITreqd to 0 for lender 10 and 11, applying
+select * from ref_lender_itconfig where lenderid in (10,11);
+
+UPDATE `staging`.`ref_lender_itconfig` SET `lender_isITreqd` = '0' WHERE (`ref_lenderITConfigId` = '11');
+UPDATE `staging`.`ref_lender_itconfig` SET `lender_isITreqd` = '0' WHERE (`ref_lenderITConfigId` = '12');
+
+
 
 
 
