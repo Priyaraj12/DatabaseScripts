@@ -1,0 +1,79 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLoanOwnerShipScore`(in myuser int, in banker int,in Lpicountval int, in debug bool, out OwnershipScore decimal(10,4))
+BEGIN
+-- Desc:		Calculates Owner score for a given user
+-- Called by:	getmyLPi_new
+-- Calls:		None
+                    
+declare OwnershipScoreLenderRefId, OwnershipScoreVCRefid, myRefNum ,retval int; 
+
+declare OwnershipScore1, OwnershipScore2,VCOwnershipweighpct decimal (18,4);
+
+declare coAppgender, primarygender,mycoApplicantId,myrelationshipId,myrelationship int;
+
+declare OwnerShipScoreCatweightapp, myOwnerShipScoreCatweightapp decimal (18,4);
+
+
+	call getReferenceCategoryId ('Ownership Score', banker, OwnershipScoreLenderRefId, OwnershipScoreVCRefid); 
+
+	set OwnershipScore=0;
+   set myrelationship=7;
+   set mycoApplicantId=0;
+   set myOwnershipScoreCatweightapp=-99;
+   SELECT i.userid,i.relationshipId into mycoApplicantId,myrelationshipId from user_login  i where i.primaryUserId = myuser and i.activeStatus > 0; 
+   select i.genderId into primarygender from user_info i where i.userId=myuser;
+    if primarygender >2 then     set primarygender=1;    end if; -- Handling Transgender as Male
+   if (myrelationshipId <7) then set myrelationship=0; end if;
+  if (debug) then select myuser,mycoApplicantId,primarygender,coAppgender,myrelationshipId; end if;
+		 
+   if mycoApplicantId = 0 then 
+		BEGIN
+			set myrelationship=0;
+			set coAppgender=0;
+			
+		END;
+	
+   else
+		BEGIN
+			/*select e.OccupationTypeId into coAppoccid from user_employment e where e.userId =mycoApplicantId;
+			select e.OccupationTypeId into primaryoccid from user_employment e where e.userId =myuser;*/
+			select i.genderId into coAppgender from user_info i where i.userId=mycoApplicantId;
+             if coAppgender >2 then     set coAppgender=1;    end if; -- Handling Transgender as Male
+			if (debug) then select myuser,mycoApplicantId,primarygender,coAppgender,myrelationshipId; end if;
+			
+		END;
+	END IF; 
+			SELECT 	(weightPct * score) / 100 INTO OwnerShipScore1  FROM ref_loan_ownership_score g 
+                WHERE g.primaryGenderId=primarygender and g.coAppGenderId=coAppgender and g.coapprelationship=myrelationship AND g.lenderid = 0;
+   
+   	if (debug) then select myuser,mycoApplicantId,primarygender,coAppgender,myrelationshipId,OwnerShipScore1; end if;
+		
+			SELECT 	weightPct,(IFNULL(weightPct,0) * ifnull(OwnerShipScore1,0)) / 100 	INTO VCOwnershipweighpct,OwnershipScoreCatweightapp FROM 	reference_category r
+				WHERE r.categoryNum = OwnershipScoreVCRefid and r.lenderId =0;      
+			if (debug) then SELECT OwnershipScoreCatweightapp; end if;                     
+ 
+   if (debug) then select myuser,mycoApplicantId,primarygender,coAppgender,myrelationshipId,OwnerShipScore1,OwnershipScoreCatweightapp; end if;
+	
+   
+  
+			SELECT 	(weightPct * score) / 100 INTO OwnerShipScore2  FROM ref_loan_ownership_score g 
+                WHERE g.primaryGenderId=primarygender and g.coAppGenderId=coAppgender and g.coapprelationship=myrelationship AND g.lenderid = banker;
+   
+			SELECT 	(IFNULL(weightPct,0) * ifnull(OwnershipScore2,0)) / 100 	INTO myOwnershipScoreCatweightapp FROM 	reference_category r
+				WHERE r.categoryNum = OwnershipScoreLenderRefId and r.lenderId =banker;       
+			if (debug) then SELECT myOwnershipScoreCatweightapp; end if;
+
+     -- Updated by Geetha on 18/03/2023, due to VC scores only existing for ref_loan_ownership_scores, prsently for all lenders, only VCOwnership score is taken and if condition is modified from -99 to 0
+	-- 		if myOwnershipScoreCatweightapp =-99 then set OwnershipScore=OwnershipScoreCatweightapp; 
+					if myOwnershipScoreCatweightapp = 0 then set OwnershipScore=OwnershipScoreCatweightapp;
+                    else set OwnershipScore=myOwnershipScoreCatweightapp; end if;  
+     
+
+-- Added by Vidhya On Jan 24 2020 to log various scores
+
+if banker=0 then 
+	begin
+	
+	call insert_user_category_score( myuser,myuser,LPicountval,banker,'Ownership',OwnershipScoreVCRefid,'Overall Score',0,VCOwnershipweighpct,OwnershipScore,debug,retval);
+	end;
+end if;
+END
