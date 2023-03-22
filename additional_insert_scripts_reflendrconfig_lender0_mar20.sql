@@ -61,6 +61,12 @@ UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '6' WHERE (`
 UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '6' WHERE (`lenderproductloanid` = '253');
 UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '6' WHERE (`lenderproductloanid` = '254');
 
+UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '7' WHERE (`lenderproductloanid` = '255');
+UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '7' WHERE (`lenderproductloanid` = '256');
+UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '7' WHERE (`lenderproductloanid` = '257');
+UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '7' WHERE (`lenderproductloanid` = '258');
+UPDATE `staging`.`lender_product_loan` SET `producttypeforintcal` = '7' WHERE (`lenderproductloanid` = '259');
+
 
 
 
