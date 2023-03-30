@@ -1,18 +1,5 @@
-﻿CREATE TABLE ref_lender_zip 
-(
-    ziplenderId	INT,
-    zip	INT,
-    district	VARCHAR(512),
-    state	VARCHAR(512),
-    lenderid	INT,
-    activestatus	VARCHAR(512),
-    createdon	VARCHAR(512),
-    createdby	VARCHAR(512),
-    updatedon	VARCHAR(512),
-    updatedby	VARCHAR(512)
-);
-
-INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('3339', '301022', 'Shahpura', 'Rajasthan', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
+use staging;
+﻿INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('3339', '301022', 'Shahpura', 'Rajasthan', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('3340', '302001', 'Shahpura', 'Rajasthan', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('3341', '302002', 'Shahpura', 'Rajasthan', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('3342', '302003', 'Shahpura', 'Rajasthan', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
@@ -3789,3 +3776,16 @@ INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, actives
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('7113', '262203', 'Bareilly', 'Uttar Pradesh', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('7114', '262302', 'Bareilly', 'Uttar Pradesh', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
 INSERT INTO ref_lender_zip (ziplenderId, zip, district, state, lenderid, activestatus, createdon, createdby, updatedon, updatedby) VALUES ('7115', '262406', 'Bareilly', 'Uttar Pradesh', '10', '1', '03-27-2023', 'Vastu', '03-27-2023', 'Vastu');
+select max(ziplenderid) from ref_lender_zip;
+
+select count(zip) from ref_lender_zip;
+
+select * from ref_lender_zip where zip = 416108;
+
+
+select a.userId,z.zip
+           from user_address a 
+                                inner join ref_zip z on z.zipid = a.zipid                                 
+                               inner join ref_lender_zip  lz on lz.zip = z.zip                                
+                                where a.userid=1048 and lz.state = z.state and lz.lenderId = 10                                
+                                and lz.activestatus>0;

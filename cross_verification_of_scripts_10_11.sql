@@ -3,6 +3,7 @@ use staging;
 select count(1) from ref_income_type_score where lenderid = 10; -- 51
 select count(1) from ref_income_type_score where lenderid = 11;-- 51
 
+
 select * from ref_lender_itconfig where lenderid in (10,11);
 
 select count(1) from ref_lender_config where lenderid = 10; -- 112
