@@ -160,7 +160,7 @@
 								aria-hidden="true" ng-if="loader"></i>
 
 							<div class="panel-body" ng-if="!loader">
-
+								<!-- ng-click event handling -- Priyaraj on 6th Feb 2023 as randomly user may navigate between loan types -->
 								<div class="">
 									<div class="col-md-12 col-sm-12 col-xs-12" id="LoanObjective">
 										<div class=" col-md-3 form-group floating-label">
@@ -399,7 +399,7 @@
 									name="clt" required id="Asset{{$index}}" maxlength="3" ng-disabled="Assets.loantypeid == 1 || Assets.loantypeid == 3 || Assets.loantypeid == 4">
 								<span class="form-control-feedback"> </span> <label
 									for="currentLoanTerm" class="form-control-placeholder">Balance Loan
-									Tenure (In Months) <i class="fa fa-info-circle"
+									Tenure <span class="mandoryclr">(In Months)</span> <i class="fa fa-info-circle"
 									title="Remaining tenure for the current home loan to be transferred "></i>
 									<span class="mandoryclr">*</span>
 								</label>
@@ -448,8 +448,10 @@
 									maxlength="11" id="LoanValue" ng-model="Assets.loanValue"
 									type="" placeholder=""
 									ng-keyup="loanvaluefunc($event,Assets.loanValue);Asset.word=convertNumberToWords(Assets.loanValue)"
+									ng-keydown
 									name="lv" required id="Asset{{$index}}"
 									oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+									
 								<span class="form-control-feedback"> </span> <label
 									for="LoanValue" class="form-control-placeholder">Required
 									Loan Amount <i class="fa fa-info-circle"
@@ -464,6 +466,7 @@
 									role="alert">
 									<div ng-message="required"> </div>
 								</div>
+
 							</div>
 							<div class="col-md-3 form-group floating-label">
 								<input class="form-control getagecolor inputtext disninput "

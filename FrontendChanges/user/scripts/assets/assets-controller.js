@@ -16,8 +16,6 @@ var Ps = Ps || {};
 							'dropDown',
 							'getassetservice',
 							function($state, $http, $scope, getcokkies, config, $rootScope, dropDown, getassetservice) {
-								//alert("assetcontroller..");
-								//alert(Assets.loantypeid);
 								dropDown.updateFinancialDropdown();
 								$scope.isMobile =getBrowserInfo();
 								var assetsNav = parseInt(localStorage.getItem('PAGE_COMPLETED'));
@@ -167,7 +165,6 @@ var Ps = Ps || {};
 								getassetservice.getAssetProductType().then(
 												function successCallback(response) {
 													//adding the changes by Priyaraj on 6th February 2023, not to show propertytypeid 6 and 7
-													//alert($scope.Assets.loantypeid);
 													$scope.productTypes = (JSON.parse(response.data.Result)); 
 													$scope.filteredProductsForLoanTypesOneAndTwo = [];
 													$scope.filteredProductsForLoanTypeThree = [];
@@ -180,10 +177,7 @@ var Ps = Ps || {};
 																$scope.filteredProductsForLoanTypeThree.push($scope.productTypes[i]);
 															}
 													}
-													/*for (var i = 0;i < $scope.filteredProductsForLoanTypeThree.length;i++) {
-														alert($scope.filteredProductsForLoanTypeThree[i].productTypeId);
-													}*/
-													//alert($scope.filteredProductsForLoanTypesOneAndTwo.length);
+													
 													
 													if ($scope.Assets.loantypeid == 1 || $scope.Assets.loantypeid == 2) {									
 														$scope.assetsProducts = $scope.filteredProductsForLoanTypesOneAndTwo;
@@ -214,7 +208,6 @@ var Ps = Ps || {};
 										  return  assetsProducts.refnum != 1 && assetsProducts.refnum != 2;
 
 									}
-									//alert($scope.Assets.loantypeid);
 									}
 								$scope.removeLastPurchaseVal=function(){	
 							}
@@ -223,8 +216,6 @@ var Ps = Ps || {};
 										.then(
 												function successCallback(
 														response) {
-															//alert("in removeLastPurchaseVal");
-													//alert(response.data.Result);
 													$scope.assetstypes = (JSON
 															.parse(response.data.Result));
 
@@ -579,6 +570,13 @@ var Ps = Ps || {};
 											$scope.error_message = "Outstanding Loan Amount should be less than Property Value";
 											$scope.success = false;
 											$('#CrLoanValue').addClass('redcolorinput');
+										//Adding additional condition by Priyaraj on 31-03-2023
+										} else if ((parseInt(asset.loanOutstandingamount.replace(/,/g, '')) > loanval) && (asset.loantypeid==2)) {
+											$scope.error = true;
+											$scope.error_message = "Required Loan Amount should be greater than or equal to outstanding loan amount";
+											$scope.success = false;
+											$('#LoanValue').addClass('redcolorinput');
+										//Adding additional condition by Priyaraj on 31-03-2023										
 										} else if ((asset.loanBalancearansfer == 0) && (asset.loantypeid==2)) {
 											$scope.error = true;
 											$scope.error_message = "Balance Tenure cannot be 0 for BT";
@@ -1263,8 +1261,8 @@ var Ps = Ps || {};
 								$scope.loanvaluefunc = function(event, val) {
 									$("#loanvalword").css('display', 'block');
 									var loanval = commaSeparatedNumeric(event,
-											val);
-									$scope.Assets.loanValue = loanval;
+											val);									
+									$scope.Assets.loanValue = loanval;									
 								}
 								$scope.assetvaluefunc = function(event, val) {
 									var assetval = commaSeparatedNumeric(event,
