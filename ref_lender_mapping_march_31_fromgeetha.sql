@@ -1,0 +1,2 @@
+INSERT INTO `staging`.`ref_lender_mapping` (`lender_mapping_id`, `loanlenderid`, `lpilenderid`, `activestatus`, `created_on`, `created_by`, `updated_by`) VALUES ('10', '262', '10', '1', '03/31/2023', 'Vastu', 'Vastu');
+INSERT INTO `staging`.`ref_lender_mapping` (`lender_mapping_id`, `loanlenderid`, `lpilenderid`, `activestatus`, `created_on`, `created_by`, `updated_by`) VALUES ('11', '262', '11', '1', '03/31/2023', 'Vastu', 'Vastu');
