@@ -115,7 +115,7 @@
 										>
                                          <span class="form-control-feedback" > </span>
                                           <label for="OrganisationName" class="form-control-placeholder font-size-label orgName">Employer / Organisation Name 
-                                          <i class="fa fa-info-circle" title="Please type your employer name here and select. if you can�t find in our list then just add the name.";></i><span class="mandoryclr"> *</span> </label>
+                                          <i class="fa fa-info-circle" title="Please type your employer name here and select. if you can't find in our list then select others.";></i><span class="mandoryclr"> *</span> </label>
                                             <div ng-if="userInfo.employerName==null && userInfo.occupationTypeId == 1"
 											style="color: red;display: none;" role="alert" id="organvalid">Please enter Organisation Name</div>
                                     </div>
@@ -150,9 +150,9 @@
                                     </div>
 									<div class=" col-md-3 form-group floating-label"
 											id="itfiled">
-											<label for="itfiled" ng-show="userInfo.occupationTypeId==1" class="appliradio">Have Payslips/Form 16? <span class="mandoryclr">*</span>
+											<label for="itfiled" ng-show="userInfo.occupationTypeId==1" class="appliradio">Have Payslips/Form 16?<i class="fa fa-info-circle" title="Have you filed your IT returns or do you have formal salary slips from your employer?";></i> <span class="mandoryclr">*</span>
 											</label>
-											<label for="itfiled" ng-show="userInfo.occupationTypeId==2 || userInfo.occupationTypeId == 3" class="appliradio">IT returns filed? <span class="mandoryclr">*</span>
+											<label for="itfiled" ng-show="userInfo.occupationTypeId==2 || userInfo.occupationTypeId == 3" class="appliradio">IT returns filed?<i class="fa fa-info-circle" title="Have you filed your IT returns?";></i> <span class="mandoryclr">*</span>
 											</label>
 										
 											<div>
