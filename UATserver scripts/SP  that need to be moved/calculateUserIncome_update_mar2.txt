@@ -1,0 +1,172 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `calculateUserIncome`(in myuser int, in banker int,in debug int, 
+											out totalResidualIncome decimal(18,2), out myeligmonths int,out mainBorrowerIncome decimal(18,2) )
+BEGIN
+-- Desc:		Calculates User income and eligible months considering primary and co-applicant incomes.Also does minimum income rejection accorder to lender specification
+-- Called by:	getmyLPi_new
+-- Calls:		calculateUserIncome_functionOne,insert_lender_reject
+		declare coApplicantId, myrefnum, eligmonths, myproductid int;
+		declare done boolean;
+        declare income,coreIncome,additionalIncome,multipliedcoreIncome,totalCoreIncome,totalAdditionalIncome,totalmultipliedCoreIncome decimal (18,2);
+        declare coAppincome, primaryincome,coAppCoreIncome,coAppAdditionalIncome,coAppmultipliedCoreIncome,primaryCoreIncome,primaryAdditionalIncome,primarymultipliedCoreIncome,priResidualIncome,coAppResidualIncome,totalIncome decimal (18,2); 
+        declare temp, tzip, tcityTierId, tlenderId,priOccid,coAppOccid int; 
+		declare maximumAgeAtMaturity, maximumTenure, maximumAgeAtMaturityinMonths int;
+		declare minimumEarnings,tempemipercent decimal (18,2);
+        declare errmsg varchar(250);   
+			DECLARE curs1 CURSOR FOR SELECT u.userid from user_login u
+			inner join user_employment e on e.userId=u.userId where u.primaryUserId=myuser and u.activeStatus > 0
+            and e.activeStatus>0 and e.occupationcategoryid!='994' and e.occupationcategoryid!='996';
+			DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+            set errmsg = 'Negative Weights for Lender - ';
+       --     set debug=1;
+            set totalIncome=0;
+			set totalResidualIncome=0;
+            set mainBorrowerIncome=0;
+			set maximumTenure=360;
+			set maximumAgeAtMaturity=70;
+			set maximumAgeAtMaturityinMonths=840;
+			set minimumEarnings=15000;
+			set coAppCoreIncome = 0;
+			set coAppAdditionalIncome = 0;
+            set coAppmultipliedCoreIncome=0;
+            set primaryCoreIncome = 0;
+			set primaryAdditionalIncome = 0;
+             set primarymultipliedCoreIncome =0;
+            set totalCoreIncome = 0;
+            set totalAdditionalIncome = 0;
+            set totalmultipliedCoreIncome=0;
+			
+	-- Get the lender config for checking the specification for lender based on primary applicant location
+
+			select i.userId, z.zipId, c.cityTierId, p.productTypeId, c.lenderId, c.minimumEarningsAmount, c.maximumAgeAtMaturity, c.maximumTenure, c.maximumAgeAtMaturity*12
+            into temp, tzip, tcityTierId, myproductid, tlenderId, minimumEarnings, maximumAgeAtMaturity, maximumTenure, maximumAgeAtMaturityinMonths
+            from user_info i
+				inner join user_address a on a.userAddressId=i.addressid
+				inner join ref_zip z on z.zipid = a.zipid 
+                inner join asset_financing p on p.userId = i.userId and p.activeStatus > 0
+				inner join ref_lender_config c on c.cityTierId = z.cityTierId and lenderId=banker and c.productTypeId=p.productTypeId
+				inner join user_employment e on e.userid= i.userid  -- Added by Vidhya Jan 7th2019
+				where i.userid=myuser and e.occupationtypeId= c.OccupationTypeId                
+		-- Modified the query by Priyaraj with regards to 'Addition of Itfiled column to ref_lender_config requirement on March 2,2023
+        -- As we have both values as 1 and 0, according to the user preferences, the respective row is chosen
+               and e.itfiled = c.itfiled; 
+                
+                
+				
+			if debug then select ' Lender Config', myuser, temp, tzip, tcityTierId, myproductid, tlenderId, banker, minimumEarnings, maximumAgeAtMaturity, maximumTenure, maximumAgeAtMaturityinMonths; end if;
+			
+			
+			
+			
+			OPEN curs1;
+		-- 	if (debug) then select 'open curssor get coapp'; end if;
+            set myeligmonths=maximumTenure;
+            set coAppincome = 0;
+           
+			read_loop: LOOP
+				FETCH curs1 INTO coApplicantId;
+				 IF done THEN LEAVE read_loop; END IF;  
+		
+        
+               select  maximumAgeAtMaturityinMonths-TIMESTAMPDIFF(MONTH, STR_TO_DATE(dateofbirth,'%m/%d/%Y'), curdate()) into 
+										eligmonths from user_info where userId=coApplicantId;
+				if debug then select ' Lender Config',coApplicantId,eligmonths;end if;
+				call calculateUserIncome_functionOne(coApplicantId, banker, debug, income,coreIncome,additionalIncome,multipliedcoreIncome); --  For coapplicant only
+				set coAppincome = coAppincome + ifnull(income,0);
+                set coAppCoreIncome = coAppCoreIncome + ifnull(coreIncome,0);
+				set coAppmultipliedCoreIncome = coAppmultipliedCoreIncome + ifnull(multipliedcoreIncome,0);
+                set coAppAdditionalIncome = coAppAdditionalIncome + ifnull(additionalIncome,0);
+                if debug then select ' CoApp Income inside loop:', coAppIncome,coreIncome,additionalIncome,coAppmultipliedCoreIncome; end if;
+                
+                if myeligmonths > eligmonths then set myeligmonths=eligmonths; end if;
+			END LOOP;
+			CLOSE curs1;  
+            if debug then select ' CoApp Income after loop:', coAppIncome,coAppCoreIncome,coAppAdditionalIncome,coAppmultipliedCoreIncome; end if;
+            set primaryIncome=0;
+			
+
+            select  maximumAgeAtMaturityinMonths-TIMESTAMPDIFF(MONTH, STR_TO_DATE(dateofbirth,'%m/%d/%Y'), curdate()) into   
+										eligmonths from user_info where userId=myuser;
+            if myeligmonths > eligmonths then set myeligmonths=eligmonths; end if;
+			-- if myeligmonths < 0 then set myeligmonths=0;end if;
+               
+            call calculateUserIncome_functionOne(myuser, banker, debug, income,coreIncome,additionalIncome,multipliedcoreIncome);  -- for primary applicant
+			set primaryCoreIncome = primaryCoreIncome + ifnull(coreIncome,0);
+			set primaryAdditionalIncome = primaryAdditionalIncome + ifnull(additionalIncome,0);
+			set primarymultipliedCoreIncome = primarymultipliedCoreIncome + ifnull(multipliedcoreIncome,0);    
+			set primaryIncome = primaryIncome + income;
+			
+            
+            -- Get the occupationid for both Primary and Co-applicant
+			set priOccid=0;
+			select OccupationTypeId into priOccid from user_employment where userid = myuser;
+			set coAppOccid=0;
+			select OccupationTypeId into coAppOccid from user_employment where userid = coApplicantId;
+			if debug then select ' CoApp emplyment id:',coAppOccid;end if;
+			if (coAppOccid = 4 or coAppOccid = 5 or coAppoccid =17)  then		
+			
+			begin
+               -- Scenario 1 when co-app is retired or housewife
+			   -- Changed to Cap AdditionalIncome  to CoreIncome and take Sum of both Incomes for Primary and Co-applicant
+				
+				set totalCoreIncome = coAppCoreIncome + primaryCoreIncome;
+				set totalAdditionalIncome = coAppAdditionalIncome + primaryAdditionalIncome;
+				set totalmultipliedCoreIncome= primarymultipliedCoreIncome + coAppmultipliedCoreIncome;
+				if debug then select ' Incomes before capping:', totalCoreIncome,totalAdditionalIncome,totalmultipliedCoreIncome; end if;
+				if totalCoreIncome < totalAdditionalIncome then set totalAdditionalIncome = totalCoreIncome; end if;
+				-- set totalIncome = primaryIncome+coAppincome;
+				-- set totalIncome = totalCoreIncome + totalAdditionalIncome;
+            
+				set totalIncome = totalmultipliedCoreIncome + totalAdditionalIncome; 
+				
+                Select emiPercent into tempemipercent from ref_emi_config g where lenderId = banker and productTypeId = myproductid and g.OccupationTypeId =priOccid and totalincome  between startRange and endRange;
+				if debug then select 'Primary EMI Percent',tempemipercent, banker, myproductid, priOccid,totalincome;end if;
+                
+                
+                set totalResidualIncome= totalIncome * tempemiPercent/100;
+				if debug then select ' Finalized Income when co-app is Retired/Housewife and have income:', primaryIncome, coAppIncome, totalIncome,totalResidualIncome, myeligmonths,
+				temp, tzip, tcityTierId, tlenderId, minimumEarnings,totalCoreIncome,totalAdditionalIncome;  end if;
+			end;
+			else
+			begin
+                -- Scenario 2 when co-app is Salaried or Self-Employed or Business
+			    -- Calculate Co-app income separately. Start with Capping
+				if coAppCoreIncome < coAppAdditionalIncome then set coAppAdditionalIncome = coAppCoreIncome; end if;
+				set coAppincome= coAppAdditionalIncome+coAppmultipliedCoreIncome;
+                if debug then select ' coAppincome',coAppincome;end if;
+                -- calculate residual income for co-applicant based on the FOIR level he/she falls under
+				 Select emiPercent into tempemipercent from ref_emi_config g where lenderId = banker and productTypeId = myproductid and g.OccupationTypeId =coAppOccid and coAppincome  between startRange and endRange;
+			    if debug then select ' EMI Percent',tempemipercent, banker, myproductid, coAppOccid;end if;
+                
+                set coAppResidualIncome= ifnull(coAppIncome,0) *ifnull(tempemiPercent,0)/100;
+				if debug then select ' Co App residual income:',coAppIncome,coAppResidualIncome,tempemipercent,coAppOccid,coAppincome; end if;
+				
+				
+				-- Calculate Prirmary income separately. Start with Capping 
+				if primaryCoreIncome < primaryAdditionalIncome then set primaryAdditionalIncome = primaryCoreIncome; end if;
+				set primaryIncome= primaryAdditionalIncome+primarymultipliedCoreIncome;
+                
+			    -- calculate residual income for Primary applicant based on the FOIR level he/she falls under
+				 Select emiPercent into tempemipercent from ref_emi_config g where lenderId = banker and productTypeId = myproductid and g.OccupationTypeId =priOccid and primaryIncome  between startRange and endRange;
+			    if debug then select 'Primary EMI Percent',tempemipercent, banker, myproductid, priOccid;end if;
+                
+                set priResidualIncome= primaryIncome *tempemiPercent/100;
+				if debug then select ' Primary residual income:',primaryIncome,priResidualIncome,tempemipercent,priOccid,primaryIncome; end if;
+				-- Add both applicant's income for deciding on lender minumum salary rejection
+                set totalIncome =primaryIncome +coAppincome;
+                -- Add both the applicant residual income
+				set totalResidualIncome=priResidualIncome+coAppResidualIncome;
+				
+                
+				if debug then select ' Finalized Income when Co-app is Salaried/Business/SEP or Coapp without income:', primaryIncome, coAppIncome, totalIncome,totalResidualIncome, myeligmonths,temp, tzip, tcityTierId, tlenderId, minimumEarnings,totalCoreIncome,totalAdditionalIncome;  end if;
+			end;
+			end if;
+		set mainBorrowerIncome=primaryIncome;
+		if totalIncome < minimumEarnings then
+			begin
+            set errmsg = concat (errmsg, 'Minimum Salary threshold violation');
+			call insert_lender_reject(myuser, banker, errmsg, temp);
+            end;
+		end if;
+		
+      
+END

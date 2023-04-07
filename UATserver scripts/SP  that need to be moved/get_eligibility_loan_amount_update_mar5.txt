@@ -1,0 +1,178 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_eligibility_loan_amount`(in userId int, in myterm int, in myassetvalue decimal (18,4), 
+												in myloanvalue decimal (18,4), in applyTermExtension int,
+												in myEMI decimal (18,2),  in banker int, in myproductTypeId int, in debug int,
+												out myeligibilityamount decimal (18,2),
+                                                out myLenderLoanAmount decimal(18,2),
+                                                out revisedterm int,
+                                                out myrate decimal (10,4),
+                                                out myLenderEMI decimal (18,2))
+BEGIN
+-- Desc:		Calculates Loan eligbility for a user and a lender based on his Eligible EMI
+-- Called by:	getmyLPi_new
+-- Calls:		None
+declare term1, continueLoop, incrementalterm, temp int;
+declare RBILTVRate ,minRate1, maxRate1 decimal (10,4);
+declare myminLoanAmount, newLoanAmount, mymaxLoanAmount, EMIDifference, RBIGuidedLoanAmount, maxEMIDifference, temp1,
+							higherEMI decimal (18,4);
+declare minLendingAmount, maxLendingAmount int;
+declare errmsg varchar(250); 
+
+set myLenderEMI = 0;
+set maxEMIDifference = 200; 
+set minLendingAmount = 200000; 
+set maxLendingAmount = 50000000; 
+
+
+if debug then select 'initial', userId, myterm, myassetvalue, myloanvalue, myEMI, banker, myproductTypeID, myeligibilityamount, revisedterm; end if;
+
+		 -- select periodInMonths, minRate, maxRate  into term1, minRate1, maxRate1 from ref_interest_rates 
+		 -- 			where lenderId=banker and periodInMonths in  (select max(periodInMonths) from ref_interest_rates r 
+		-- 		where periodInMonths <= myterm) and myloanvalue between startRange and endRange ;
+		
+    --  select periodInMonths, minRate, maxRate  into term1, minRate1, maxRate1 from ref_interest_rates 
+	  -- 	where lenderId=banker and myloanvalue between startRange and endRange and activeStatus>0;
+        
+      call getInterestRate(userId,banker,myloanvalue,0,term1,minRate1,maxRate1);
+        
+        if (debug) then  select 'first', term1, minRate1, maxRate1; end if;   
+        
+		call  getLoanAmount(myterm, minRate1/100, myEMI, myeligibilityamount); -- gets max amount at min rate
+        
+        set myLenderLoanAmount = myeligibilityamount;
+ 
+		if (debug) then  select 'Elig Amount based on EMI', term1, myterm, myEMI, myLoanValue, myeligibilityamount, myLenderLoanAmount; end if;  
+        
+		set RBILTVRate =-1;
+        
+	-- 	select max(score*weightPct/100) into RBILTVRate from ref_loan_guidelines where
+	-- 			lenderid in (0, banker) and myloanvalue between startRange and endRange;
+    
+    
+        if (debug) then  select 'before RBILTVRate', myproductTypeId, RBILTVRate, myloanvalue; end if; 
+    
+    	select score*weightPct/100 into RBILTVRate from ref_loan_guidelines where
+		lenderid = 0 and myloanvalue between startRange and endRange and productTypeId = myproductTypeId;
+		
+        if (debug) then  select 'after RBILTVRate', myproductTypeId, RBILTVRate, myloanvalue; end if; 
+        if RBILTVRate = -1 then 
+			begin
+				if (debug) then  select 'RBI GUIDELINE VALUE MISSING - CREATE GUIDELINES'; end if;
+				set myeligibilityamount = 0;
+				set myLenderLoanAmount = 0;
+			end;
+        else
+			begin
+				set RBIGuidedLoanAmount = myassetValue * RBILTVRate/100;        
+				if RBIGuidedLoanAmount < myLenderLoanAmount then 
+					set myLenderLoanAmount = RBIGuidedLoanAmount;
+					set myeligibilityamount = RBIGuidedLoanAmount;
+				end if;
+			-- 	if RBIGuidedLoanAmount < myloanvalue then --  setting max loan provded per RBI norms
+				-- 	set myloanvalue = RBIGuidedLoanAmount; 
+			-- 	end if;
+			end;
+        end if;
+        
+        set revisedterm = myterm;		
+        if (debug) then  select 'first cal', revisedterm, minrate1, RBIGuidedLoanAmount, myeligibilityamount, myloanvalue, 
+											myLenderLoanAmount, myLenderEMI;
+        end if;
+        
+        set myLenderEMI= myLenderLoanAmount * minRate1/1200 * 
+							round((pow(1 + (minRate1/1200), revisedterm) / (pow(1 + (minRate1/1200), revisedterm) - 1)),2);
+  
+	-- 	set EMIDifference = myeligibilityEMI - myEMI;
+      
+		if debug then 
+				select ' third before loop', RBIGuidedLoanAmount, myeligibilityamount, myLenderLoanAmount, myloanvalue, minrate1,
+					RBILTVRate, term1, revisedterm, myEMI, myLenderEMI, minRate1,applyTermExtension;
+		end if;
+        
+        if myloanvalue <= myLenderLoanAmount then set  myLenderLoanAmount= myloanvalue; end if;  -- change on 7/3/2017 
+        if myloanvalue <= myeligibilityamount then set  myeligibilityamount= myloanvalue; end if;  -- added on 8/17/2018
+		
+        /* if applyTermExtension > 0 then   -- Extension only for Govt and PSU pension users
+				if myloanvalue > myeligibilityamount then
+				begin
+					set higherEMI = 0;
+					set continueLoop =1;
+					set incrementalterm=0;
+					if (revisedterm >  360) then set continueLoop=0; end if;
+					while (continueLoop > 0  ) Do 
+						begin
+							set revisedterm = revisedterm +12;
+							set incrementalterm = incrementalterm+12;
+							if incrementalterm >=60 then set continueLoop=0; end if;
+							if revisedterm >= 360 then set revisedterm=360; end if;
+							call  getLoanAmount(revisedterm, minRate1/100, myLenderEMI, newLoanAmount); -- gets max amouint at min rate
+							if newLoanAmount >= myloanValue then set continueLoop = 0; end if;
+							if (revisedterm >=  360) then set continueLoop=0; end if;
+							if (debug) then  select 'fourth within loop', revisedterm, myloanvalue, newLoanAmount, continueLoop; end if;
+						end;
+					end while;
+                    if newLoanAmount > myloanvalue then  	set newLoanAmount = myloanvalue; end if;
+					set myLenderLoanAmount = newLoanAmount; 
+					set  myLenderEMI = myloanvalue * minRate1/1200 * 
+							round((pow(1 + (minRate1/1200), revisedterm) / (pow(1 + (minRate1/1200), revisedterm) - 1)),2);
+					if (debug) then  
+						select 'calc higher emi', myeligibilityamount, myLenderLoanAmount, myloanvalue, minRate1, revisedterm, myLenderEMI;
+					end if;
+				 end;
+			 end if;
+			end if; */
+		set myrate = minRate1;
+        if debug then 
+        select 'final', RBIGuidedLoanAmount, myeligibilityamount, myLenderLoanAmount, myloanvalue, RBILTVRate,  term1, revisedterm, higherEMI, minRate1; 
+        end if;
+        
+        -- Go No Go check based on final eligible loan amount
+        		          
+            select c.minimumLendingAmount, c.maximumLendingAmount
+            into minLendingAmount, maxLendingAmount
+            from user_info i
+				inner join user_address a on a.userAddressId=i.addressid
+				inner join ref_zip z on z.zipid = a.zipid 
+				inner join ref_lender_config c on c.cityTierId = z.cityTierId and lenderId=banker and c.productTypeId=myproductTypeId
+				inner join user_employment e on e.userid= i.userid -- Added by Vidhya 7th Jan 2019
+				where i.userid=userId and e.occupationtypeId= c.OccupationTypeId 
+                -- adding itfiled status checking condition by Priyaraj on 95-03-2023
+                and c.itfiled = e.itfiled;
+                --
+                
+			
+			if debug then 
+			select 'lender loan threshold', banker, myproductTypeId, myeligibilityamount,minLendingAmount, maxLendingAmount,minrate1; 
+			end if;
+			
+			if myeligibilityamount < minLendingAmount then
+				begin
+				set errmsg = 'Min Loan Amount threshold violation';
+                if debug then 
+			select 'inside error msg', errmsg, banker, myproductTypeId, myeligibilityamount,minLendingAmount, maxLendingAmount,minrate1; 
+			end if;
+
+				call insert_lender_reject(userId, banker, errmsg, temp);
+                if debug then 
+			select 'after lender reject', banker, myproductTypeId, myeligibilityamount,minLendingAmount, maxLendingAmount,minrate1; 
+			end if;
+
+                -- select 'min lender loan threshold violation',userId, banker;
+				end;
+			end if;
+            
+			if myeligibilityamount > maxLendingAmount then
+				begin
+				set errmsg = 'Max Loan Amount threshold violation';
+				call insert_lender_reject(userId, banker, errmsg, temp);
+                -- select 'max lender loan threshold violation',userId, banker;
+				end;
+			end if;
+			if minrate1 > 90 then
+				begin
+				set errmsg = 'No Interest Rate';
+				call insert_lender_reject(userId, banker, errmsg, temp);
+                -- select 'max lender loan threshold violation',userId, banker;
+				end;
+			end if;
+                             
+END

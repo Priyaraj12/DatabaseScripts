@@ -1,0 +1,454 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getProfileScore`(in myuserid int, in primaryuser int, in banker int,in Lpicountval int, in debug bool,
+									out ProfileScore decimal(10,4))
+BEGIN
+-- Desc:		Calculates profile score for the primary or co-applicant user and checks for min/max age and min prof exp criteria	
+-- Called by:	getALLProfileScore
+-- Calls:		insert_lender_reject
+
+declare id, myGender, MaritalStatus, AgeBucket, Age, Education, ResidenceCategory, OccupationType, InstitutionId,  ProYears, JobYears, IndustrySegment,
+UserProfileLenderRefId, UserProfileVCRefid, categoryNum, myREFNUM, empid, temp, myproductTypeId int;
+declare GenderScore, AgeScore, EducationScore, MaritalSratusScore, ResidenceScore, OccupationScore, IndustryScore, OwnershipScore,
+    JobScore, JobScore1,  InstitutionScore,SectorScore, ProfileScore1,ProfileScore2, ProfileScore3, ProfScore, 
+    ProfScore1, personalVerificationScore, pvs ,ProfileWeightpct decimal (10,2);
+declare crif_dob, dob varchar(20);
+declare crif_gender, genderDesc,categoryName,subcategoryName varchar(20);
+declare cityDivision, state varchar(20);
+declare crif_name, userName varchar(100);
+declare crif_score,categoryid,subCategoryid,retval int;
+-- declare tempuserId, tzip, tcityTierId, tlenderId, lenderCityDivisionId int; -- instead of lenderCityDivisionId, ziplenderId is needed. Hence modifying the variable name as per business requirement -- Priyaraj 28 - 03 - 2023
+declare tempuserId, tzip, tcityTierId, tlenderId, ziplenderId int; 
+declare minimumAge, maximumAge, minimumProfExperience,OccupationCategory,BusinessConstitution int;
+declare AgeScoreWeightApp,EducationScoreWeightApp,ResidenceScoreWeightApp,JobScoreWeightApp,
+ProfScoreWeightApp,SectorScoreWeightApp,EmployerConstitutionScoreWeightApp,BusinessPerformanceScoreWeightApp decimal(10,2);
+declare AgeScoreWeightPct,EducationScoreWeightPct,ResidenceScoreWeightPct,JobScoreWeightPct,
+ProfScoreWeightPct,SectorScoreWeightPct,EmployerConstitutionScoreWeightPct,BusinessPerformanceScoreWeightPct decimal(10,2);
+declare errmsg varchar(250);   
+    
+   --  set UserProfileVCRefid = -1;
+    -- set  UserProfileLenderRefId = -1;
+	
+	set categoryName='Profile';
+	set categoryid=1;
+call getReferenceCategoryId ('User Profile', banker, UserProfileLenderRefId, UserProfileVCRefid);
+
+-- if (debug) then  select UserProfileLenderRefId, UserProfileVCRefid; end if;  
+
+if (debug) then select 'In getProfileScore', myuserid, primaryuser, UserProfileLenderRefId, UserProfileVCRefid; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('In getProfileScore','..myuserid = ',myuserid,'..primaryuser = ',primaryuser,'..UserProfileLenderRefId = ',UserProfileLenderRefId,'..UserProfileVCRefid = ',UserProfileVCRefid);
+	-- Get the lender config for checking the specification for lender based on primary applicant location
+
+	if primaryuser = 0 then
+		begin
+			select i.userId, z.zipId, p.productTypeId, c.cityTierId, c.lenderId, c.minimumAge, c.maximumAge, c.minimumProfExperience
+            into tempuserId, tzip, myproductTypeId, tcityTierId, tlenderId, minimumAge, maximumAge, minimumProfExperience
+            from user_info i
+				inner join user_address a on a.userAddressId=i.addressid
+				inner join ref_zip z on z.zipid = a.zipid
+                inner join asset_financing p on p.userId = i.userId and p.activeStatus > 0
+				inner join ref_lender_config c on c.cityTierId = z.cityTierId and lenderId=banker and c.productTypeId=p.productTypeId
+				inner join user_employment e on e.userid= i.userid  -- Added by Vidhya Jan 7th2019
+				where i.userid=myuserid and e.occupationtypeId= c.OccupationTypeId
+				-- adding itfiled status checking condition by Priyaraj on 06-03-2023
+                and c.itfiled = e.itfiled;
+                --
+                
+		end;
+    else
+		begin
+			select i.userId, z.zipId, p.productTypeId, c.cityTierId, c.lenderId, c.minimumAge, c.maximumAge, c.minimumProfExperience
+            into tempuserId, tzip, myproductTypeId, tcityTierId, tlenderId, minimumAge, maximumAge, minimumProfExperience            
+            from user_info i
+				inner join user_address a on a.userAddressId=i.addressid
+				inner join ref_zip z on z.zipid = a.zipid 
+                inner join asset_financing p on p.userId = i.userId and p.activeStatus > 0
+				inner join ref_lender_config c on c.cityTierId = z.cityTierId and lenderId=banker and c.productTypeId=p.productTypeId
+				inner join user_employment e on e.userid= i.userid  -- Added by Vidhya Jan 7th2019
+				where i.userid=primaryuser and e.occupationtypeId= c.OccupationTypeId
+				-- adding itfiled status checking condition by Priyaraj on 06-03-2023
+                and c.itfiled = e.itfiled;
+                --
+               
+		end;
+	end if;
+				
+			if debug then select ' Lender Config', myuserid, primaryuser, tempuserId, tzip, myproductTypeId, tcityTierId, tlenderId, banker, minimumAge, maximumAge, minimumProfExperience; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat(' Lender Config','..myuserid = ',myuserid,'..primaryuser = ',primaryuser,'..tempuserId = ',tempuserId,'..tzip = ',tzip,'..myproductTypeId = ',myproductTypeId,'..cityTierId = ',tcityTierId,'..lenderid = ',tlenderId,'..banker = ',banker,'..minimumAge = ',minimumAge,'..maximumAge = ',maximumAge,'..minimumProfExperience = ',minimumProfExperience);
+	-- end config
+
+SELECT 
+    u.userId,concat(firstName,' ',lastName), 
+    genderId, dateOfBirth,
+    maritalStatusId,
+    ageId,
+    TIMESTAMPDIFF(YEAR, STR_TO_DATE(dateofbirth,'%m/%d/%Y'), curdate()),
+    u.educationId,  u.educationInstitutionId, 
+    u.ResidenceCategoryId, e.employerId, 
+    e.occupationTypeId,
+	e.occupationcategoryid,
+	e.businessConstitution,
+    e.yearsofServicewithEmployer,
+    e.yearsofServiceinIndustry
+INTO id , userName, myGender , dob, MaritalStatus, AgeBucket, Age, Education , 
+InstitutionID, ResidenceCategory , empid, OccupationType ,OccupationCategory,BusinessConstitution, JobYears , ProYears FROM
+    user_info u left JOIN  user_employment e ON e.userId = u.userId and e.activeStatus > 0
+        where u.userId = myuserid and u.activeStatus > 0;
+        
+        select  industrySegmentId into IndustrySegment from employer emp where emp.employerId = empid;
+
+if (debug) then SELECT 
+    id,
+    myGender,
+    dob,
+    MaritalStatus,
+    AgeBucket,
+    Age,
+    Education, InstitutionID,
+    ResidenceCategory,
+    OccupationType,
+	OccupationCategory,
+	BusinessConstitution,
+    JobYears,
+    ProYears, IndustrySegment;
+    end if;
+
+
+		/*set GenderScore = null;
+			SELECT   count(*), g.weightPct * g.Score / 100 INTO temp, GenderScore FROM  ref_gender_score g WHERE lenderId = banker AND g.REFNUM = myGender GROUP BY g.weightPct,g.score;
+
+			IF GenderScore = null then 
+			SELECT 	 count(*), ifnull(g.weightPct,0) * ifnull(g.Score,0) / 100	INTO temp, GenderScore FROM ref_gender_score g 	where g.lenderid = 0 and g.REFNUM = myGender GROUP BY g.weightPct,g.score;
+			end if;
+  
+if (debug) then SELECT GenderScore; end if;*/
+
+		set AgeScore = null;
+			SELECT      count(*), g.weightPct * g.Score / 100 INTO temp, AgeScore FROM ref_age g WHERE g.lenderid = banker AND g.REFNUM = AgeBucket GROUP BY g.weightPct,g.score;
+
+			IF AgeScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO temp, AgeScore FROM	ref_age g where g.lenderid = 0 and g.REFNUM = AgeBucket GROUP BY g.weightPct,g.score;
+			end if;
+			
+			 SELECT weightPct,(IFNULL(weightPct,0) * ifnull(AgeScore,0)) / 100 	INTO AgeScoreWeightPct,AgeScoreWeightApp FROM 	ref_sub_category r
+		    WHERE r.subcategoryNum = 1 and r.lenderId =0;
+			
+  
+-- if (debug) then  SELECT AgeSCore; end if;
+if (debug) then  SELECT AgeSCore,AgeSCoreWeightApp,AgeScoreWeightPct; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('AgeSCore = ',AgeSCore,'..AgeSCoreWeightApp = ',AgeSCoreWeightApp,'..AgeScoreWeightPct = ',AgeScoreWeightPct);
+		set EducationScore = null;
+			SELECT      count(*), g.WeightPct * g.Score / 100 INTO temp, EducationScore FROM ref_education_score g WHERE g.lenderid = banker AND g.REFNUM = Education GROUP BY g.weightPct,g.score;
+
+			IF EducationScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO temp, EducationScore FROM ref_education_score g where g.lenderid = 0 and g.REFNUM = Education GROUP BY g.weightPct,g.score;
+			end if;
+			SELECT 	weightPct,(IFNULL(weightPct,0) * ifnull(EducationScore,0)) / 100 	INTO EducationScoreWeightPct,EducationScoreWeightApp FROM 	ref_sub_category r
+		    WHERE r.subcategoryNum = 2 and r.lenderId =0;
+			
+-- if (debug) then  SELECT EducationScore; end if;
+ if (debug) then  SELECT EducationScore,EducationScoreWeightApp,EducationScoreWeightPct; end if;
+ -- insert into getmyLpi_All_Lenders_consolelogs select concat('EducationScore..',EducationScore,'..EducationScoreWeightApp = ',EducationScoreWeightApp,'..EducationScoreWeightPct = ',EducationScoreWeightPct);
+  		/*set MaritalSratusScore = null;
+			SELECT    count(*), g.weightPct * g.Score / 100 INTO temp, MaritalSratusScore FROM ref_marital_status_score g WHERE g.lenderid = banker AND g.REFNUM = MaritalStatus GROUP BY g.weightPct,g.score;
+
+			IF MaritalSratusScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO temp, MaritalSratusScore FROM ref_marital_status_score g where g.lenderid = 0 and g.REFNUM = MaritalStatus GROUP BY g.weightPct,g.score;
+			end if;
+  
+if (debug) then  SELECT MaritalSratusScore; end if;*/
+  
+
+  		set ResidenceScore = null;
+			SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, ResidenceScore FROM  ref_residence_category_score g WHERE  g.lenderid = banker AND g.REFNUM = ResidenceCategory GROUP BY g.weightPct,g.score;
+
+			IF ResidenceScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO temp, ResidenceScore FROM ref_residence_category_score g where g.lenderid = 0 and g.REFNUM = ResidenceCategory GROUP BY g.weightPct,g.score;
+			end if;
+		SELECT weightPct,(IFNULL(weightPct,0) * ifnull(ResidenceScore,0)) / 100 	INTO ResidenceScoreWeightPct,ResidenceScoreWeightApp FROM 	ref_sub_category r
+		    WHERE r.subcategoryNum = 3 and r.lenderId =0;
+
+-- if (debug) then  SELECT ResidenceScore; end if;
+if (debug) then  SELECT ResidenceScore,ResidenceScoreWeightApp,ResidenceScoreWeightPct; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('..ResidenceScore = ',ResidenceScore,'..ResidenceScoreWeightApp = ',ResidenceScoreWeightApp,'..ResidenceScoreWeightPct = ',ResidenceScoreWeightPct);
+-- Reintroducing Occupation score by inputs from Probe by Vidhya 11th March 2019
+-- Changing OccupationScore to EmployerConstitutionScore By Vidhya 26th Feb 2020
+     if OccupationType=1 then
+	call getEmploymentScore(id,banker,0,EmployerConstitutionScoreWeightApp,EmployerConstitutionScoreWeightPct);
+	end if;
+	if OccupationType=2 or  OccupationType=3 then
+	call getBusinessConstitutionScore(id,BusinessConstitution,banker,0,EmployerConstitutionScoreWeightApp,EmployerConstitutionScoreWeightPct);
+	end if;
+    
+if (debug) then  SELECT EmployerConstitutionScoreWeightApp,EmployerConstitutionScoreWeightPct; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('..EmployerConstitutionScoreWeightApp = ',EmployerConstitutionScoreWeightApp,'..EmployerConstitutionScoreWeightPct = ',EmployerConstitutionScoreWeightPct);
+-- Introducing BusinessPerformance Score by Employer categorization for Salaried and Employer Categorization or Business Performance for SEP and Business.
+call getBusinessPerformanceScore(id,banker,OccupationType,0,BusinessPerformanceScoreWeightApp,BusinessPerformanceScoreWeightPct);
+
+
+
+
+-- Introducing Ownership score by inputs from Applicant/Co-App employment by Vidhya 15th April 2019
+    /*  set OwnershipScore =0;
+      call getOwnerShipScore(id,banker,0,OwnershipScore);
+      if (debug) then  SELECT OwnershipScore; end if;*/
+
+
+
+/*
+  		set OccupationScore = null;
+			SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, OccupationScore FROM ref_occupation_type g WHERE  g.lenderid = banker  AND g.REFNUM = OccupationType;
+
+			IF OccupationScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO OccupationScore FROM ref_occupation_type g where g.lenderid = 0 and g.REFNUM = OccupationType;
+			end if;
+
+if (debug) then  SELECT OccupationScore; end if;
+*/
+		/* Commenting code as it  is not relevant since camparison is between the same values
+        Set  personalVerificationScore=-1;
+        set pvs=0;
+        
+        SELECT  --  ifnull(extractValue(creditresponse,'//SCORE-VALUE'),0) score, 
+				extractValue(creditresponse, '//DOB')  ,
+				extractValue(creditresponse, '//GENDER')  ,
+				extractValue(creditresponse, '//NAME')  
+			into
+			-- 	crif_score, 
+                crif_dob, crif_gender, crif_name 
+			from user_credit_response where userid = myuserid and activeStatus >0;
+		
+     if debug then    select personalVerificationScore; end if;
+                
+		if crif_dob = dob then set pvs = pvs+1; end if;
+        select gender into genderDesc from ref_gender where activeStatus > 0 and genderId = myGender;
+        if crif_gender = genderDesc then set pvs = pvs+1; end if;
+        if crif_name = username then set pvs = pvs+1; end if;
+      
+        -- set pvs = pvs/3;
+        set personalVerificationScore = -1;
+      
+		SELECT  g.weightPct * g.Score / 100 
+			INTO personalVerificationScore FROM ref_personal_verification_score g 
+				WHERE  g.lenderid = banker AND pvs between startRange and endRange;
+                
+
+			IF personalVerificationScore = -1 then 
+				SELECT  g.weightPct * g.Score / 100 
+				INTO personalVerificationScore FROM ref_personal_verification_score g 
+				WHERE  g.lenderid = 0 AND pvs between startRange and endRange;
+			end if;
+
+        
+if debug then select 'Crif Verification', pvs,  personalVerificationScore,
+					crif_score, crif_dob, crif_gender, crif_name,
+						username, dob, genderDesc; end  if; 
+                        */
+/*
+ 		set IndustryScore = null;
+			SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, IndustryScore FROM industry_sector g WHERE  g.lenderid = banker AND industrySegmentId = IndustrySegment;
+
+			IF IndustryScore = null then 
+				SELECT 	 count(*), ifnull((g.weightPct * g.Score / 100),0)	INTO temp, IndustryScore FROM	industry_sector g where g.lenderid = 0 and  industrySegmentId = IndustrySegment;
+			end if;
+  
+if (debug) then SELECT IndustryScore; end if;
+*/
+ 
+  		set JobScore = null;  set myREFNUM =null;
+			SELECT  count(*), REFNUM, g.weightPct * g.Score / 100 into temp, myREFNUM, JobScore1 from ref_job_tenure g where  Jobyears between g.startTenure and g.endTenure and lenderid=0 GROUP BY g.weightPct,g.score,refnum;
+            
+            if myREFNUM=null then set JobScore=0;
+            else 
+				begin 
+					set JobScore = null;
+-- Geetha 22/03/2023. Modify query to retrieve prof score by evaluation based on the start and end range of experience than refNum
+-- 					SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, JobScore FROM ref_job_tenure g 	WHERE  g.lenderid = banker AND g.REFNUM = myREFNUM GROUP BY g.weightPct,g.score;
+SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, JobScore FROM ref_job_tenure g 	WHERE  g.lenderid = banker AND Jobyears between g.startTenure and g.endTenure  GROUP BY g.weightPct,g.score;
+				end;
+                if JobScore = null then set JobScore= JobScore; end if;             
+            end if;
+			SELECT 	weightPct,(IFNULL(weightPct,0) * ifnull(JobScore,0)) / 100 	INTO JobScoreWeightPct,JobScoreWeightApp FROM 	ref_sub_category r
+		    WHERE r.subcategoryNum = 4 and r.lenderId =0;
+           
+-- if (debug) then  SELECT JobScore; end if;
+if (debug) then  SELECT JobScore,JobScoreWeightApp,JobScoreWeightPct; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('JobScore = ',JobScore,'.. JobScoreWeightApp = ',JobScoreWeightApp,'..JobScoreWeightPct = ',JobScoreWeightPct);
+  		set ProfScore = null;  set myREFNUM =null;
+			SELECT  count(*), REFNUM, g.weightPct * g.Score / 100 into temp, myREFNUM, ProfScore1 from ref_prof_tenure g where  Proyears between g.startTenure and g.endTenure and lenderid=0 GROUP BY g.weightPct,g.score,refnum;
+            
+            if myREFNUM=null then set ProfScore=0;
+            else 
+				begin 
+					set ProfScore = null;
+-- Geetha 22/03/2023. Modify query to retrieve prof score by evaluation based on the start and end range of experience than refNum
+-- 					SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, ProfScore FROM ref_prof_tenure g WHERE  g.lenderid = banker AND g.REFNUM = myREFNUM GROUP BY g.weightPct,g.score;
+					SELECT  count(*), g.weightPct * g.Score / 100 INTO temp, ProfScore FROM ref_prof_tenure g WHERE  g.lenderid = banker and Proyears between g.startTenure and g.endTenure GROUP BY g.weightPct,g.score;
+				end;
+                if ProfScore = null then set ProfScore= ProfScore; end if;
+                 
+            end if;
+            SELECT 	weightPct,(IFNULL(weightPct,0) * ifnull(ProfScore,0)) / 100 	INTO ProfScoreWeightPct, ProfScoreWeightApp FROM 	ref_sub_category r
+		    WHERE r.subcategoryNum = 5 and r.lenderId =0;
+-- if (debug) then  SELECT ProfScore; end if;
+if (debug) then  SELECT ProfScore,ProfScoreWeightPct,ProfScoreWeightApp; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('ProfScore = ',ProfScore,'.. ProfScoreWeightPct = ',ProfScoreWeightPct,'..ProfScoreWeightApp = ',ProfScoreWeightApp);           
+   /*  education Institution Score was made zero to accommodate crif-verification factor    */     
+/*			Set InstitutionScore= null;
+				if ifnull(InstitutionID,0) > 0 then
+					select  count(*), g.weightPct*g.Score / 100 into temp, InstitutionScore from ref_education_institution g where g.educationInstitutionId = InstitutionID;
+				end if;
+            
+if (debug) then  SELECT InstitutionScore; end if;
+*/
+set SectorScore = -99;  
+			SELECT  g.weightPct * g.Score / 100 into SectorScore from ref_sector_score g where  g.occupationCategoryId=OccupationCategory and g.lenderid=banker; 
+            if SectorScore=-99 then 
+            begin 
+					set SectorScore = 0;
+					SELECT   g.weightPct * g.Score / 100 INTO  SectorScore FROM ref_sector_score g WHERE  g.occupationCategoryId=OccupationCategory and g.lenderid=0;
+			end;
+            end if;
+	if (debug) then  SELECT SectorScore; end if;
+    SELECT 	weightPct,(IFNULL(weightPct,0) * ifnull(SectorScore,0)) / 100 	INTO SectorScoreWeightPct, SectorScoreWeightApp FROM 	ref_sub_category r
+    WHERE r.subcategoryNum = 7 and r.lenderId =0;
+-- if (debug) then  SELECT SectorScore; end if;
+if (debug) then  SELECT SectorScore,SectorScoreWeightPct,SectorScoreWeightApp; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('SectorScore = ',SectorScore,'.. SectorScoreWeightPct = ',SectorScoreWeightPct,'..SectorScoreWeightApp = ',SectorScoreWeightApp);           
+					
+if (debug) then select 	AgeScoreWeightApp, 
+                        EducationScoreWeightApp,
+						ResidenceScoreWeightApp,
+						JobScoreWeightApp,
+                        ProfScoreWeightApp,
+						EmployerConstitutionScoreWeightApp,
+						SectorScoreWeightApp,
+						BusinessPerformanceScoreWeightApp;
+                        end if;
+	
+/*insert into getmyLpi_All_Lenders_consolelogs select concat('AgeScoreWeightApp = ',AgeScoreWeightApp,'.. EducationScoreWeightApp = ',EducationScoreWeightApp,'..ResidenceScoreWeightApp = ',ResidenceScoreWeightApp);             
+insert into getmyLpi_All_Lenders_consolelogs select concat('JobScoreWeightApp = ',JobScoreWeightApp,'.. ProfScoreWeightApp = ',ProfScoreWeightApp,'..EmployerConstitutionScoreWeightApp = ',EmployerConstitutionScoreWeightApp); 
+insert into getmyLpi_All_Lenders_consolelogs select concat('SectorScoreWeightApp = ',SectorScoreWeightApp,'.. BusinessPerformanceScoreWeightApp = ',BusinessPerformanceScoreWeightApp); */
+  set ProfileScore3 = 	ifnull(AgeScoreWeightApp,0) + 
+                        ifnull(EducationScoreWeightApp,0) + 
+					    ifnull(ResidenceScoreWeightApp,0) + 
+                        ifnull(JobScoreWeightApp,0)+
+                        ifnull(ProfScoreWeightApp,0)+
+						ifnull(EmployerConstitutionScoreWeightApp,0) +
+						ifnull(SectorScoreWeightApp,0)+
+						ifnull(BusinessPerformanceScoreWeightApp,0);
+  
+--  if (debug) then  SELECT ProfileScore3; end if;
+
+if UserProfileLenderRefId >0 then
+		SELECT     (weightPct * ProfileScore3 / 100) INTO ProfileScore1 FROM     reference_category r
+		WHERE     r.categoryNum = UserProfileLenderRefId;
+else set profileScore1=0;
+
+end if;
+
+	SELECT  IFNULL((weightPct * ProfileScore3 / 100),0),weightPct INTO ProfileScore2,ProfileWeightpct FROM
+    reference_category r WHERE r.categoryNum = UserProfileVCRefId;
+
+
+if ProfileScore1 = 0 then set ProfileScore=ProfileScore2; else set ProfileScore=ProfileScore1; end if;
+
+if (debug) then select ProfileScore; end if;
+-- insert into getmyLpi_All_Lenders_consolelogs select concat('ProfileScore..',ProfileScore);
+-- select  LPiCount into LPicountval from user_login where userId=myuserid and activeStatus > 0;
+
+if banker=0 then 
+	begin
+	if primaryuser = 0  then set primaryuser=myuserid; end if;
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Age',1,((ProfileWeightpct*AgeScoreWeightpct)/100),(ProfileWeightpct*AgeScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Education',2,((ProfileWeightpct*EducationScoreWeightpct)/100),(ProfileWeightpct*EducationScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Residence',3,((ProfileWeightpct*ResidenceScoreWeightpct)/100),(ProfileWeightpct*ResidenceScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Current Experience',4,((ProfileWeightpct*JobScoreWeightpct)/100),(ProfileWeightpct*JobScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Total Experience',5,((ProfileWeightpct*ProfScoreWeightpct)/100),(ProfileWeightpct*ProfScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Employer/Business Constitution',6,((ProfileWeightpct*EmployerConstitutionScoreWeightPct)/100),(ProfileWeightpct*EmployerConstitutionScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Employment Sector',7,((ProfileWeightpct*SectorScoreWeightpct)/100),(ProfileWeightpct*SectorScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Employment Performance',8,((ProfileWeightpct*BusinessPerformanceScoreWeightPct)/100),(ProfileWeightpct*BusinessPerformanceScoreWeightApp/100),0,retval);
+	call insert_user_category_score( myuserid,primaryuser,LPicountval,banker,categoryName,categoryid,'Overall Score',0,ProfileWeightpct,ProfileScore,0,retval);
+	end;
+	end if;
+-- SELECT ProfileScore; 
+
+-- Go No Go Checks only for primary users
+
+if primaryuser = 0 then begin
+	if Age < minimumAge then
+		begin
+		set errmsg = 'Minimum Age threshold violation';
+		call insert_lender_reject(tempuserId, banker, errmsg, temp);
+		-- insert into getmyLpi_All_Lenders_consolelogs select concat('Minimum Age threshold violation..','banker = ',banker,'..temp = ',temp);
+		end;
+	end if;
+
+	if Age > maximumAge then
+		begin
+		set errmsg = 'Maximum Age threshold violation';
+		call insert_lender_reject(tempuserId, banker, errmsg, temp);
+		-- insert into getmyLpi_All_Lenders_consolelogs select concat('Maximum Age threshold violation..','banker = ',banker,'..temp = ',temp);
+		end;
+	end if;
+
+	if Proyears < minimumProfExperience then
+		begin
+		set errmsg = 'Minimum Prof Experience threshold violation';
+		call insert_lender_reject(tempuserId, banker, errmsg, temp);
+		-- insert into getmyLpi_All_Lenders_consolelogs select concat('Minimum Prof Experience threshold violation..','banker = ',banker,'..temp = ',temp);
+		end;
+	end if;
+    -- As we are awaiting the pincodes for lender 11, no lender presence check is applicable only for lender 10 as of now.
+    -- Once the zip is inserted, we have to include the condition check for lender 11 also
+    -- if banker >0 then -- Temporary fix not to check for lender 11. Later this will be in place
+    if banker > 0 and banker = 10 then
+		begin
+		
+        -- It has been planned to take the data from ref_lender_zip for 'no lender presence' via business requirement 9 dated 27-03-2023
+        -- and hence the existing query is taken out and adding new query -- Priyaraj - 28 - 03-2023
+    
+    		/*select i.userId, c.lenderid, c.cityDivision, c.state, c.cityDivisionlenderId
+            into tempuserId, tlenderId, cityDivision, state, lenderCityDivisionId
+            from user_info i
+				inner join user_address a on a.userAddressId=i.addressid
+				inner join ref_zip z on z.zipid = a.zipid 
+				inner join ref_lender_citydivision c on c.cityDivision = z.cityDivision and c.state = z.state and c.lenderId = banker
+				where i.userid=myuserid and c.activestatus>0;*/
+                
+			-- set lenderCityDivisionId = -1; As we are going to get ziplenderId from below query, it is changed to ziplenderId = -1
+            set ziplenderId = -1;
+                
+			select a.userId,lz.lenderid,lz.zip,lz.state,lz.ziplenderId
+            into tempuserId, tlenderId,tzip,state,ziplenderId
+           from user_address a 
+                                inner join ref_zip z on z.zipid = a.zipid                                 
+                               inner join ref_lender_zip  lz on lz.zip = z.zip                                
+                                where a.userid=myuserid and lz.state = z.state and lz.lenderId = banker                                
+                                and lz.activestatus>0;
+			-- we need to check the data with ziplenderId -- Priyaraj 28 - 03-2023
+			-- if debug then select ' Lender City Check', myuserid, primaryuser, cityDivision, state, lenderCityDivisionId; end if;
+            if debug then select ' Lender City Check', myuserid, primaryuser, tzip,state, tlenderId,ziplenderId; end if;
+			-- insert into getmyLpi_All_Lenders_consolelogs select concat('Lender City Check..','myuserid = ',myuserid,'..primaryuser = ',primaryuser,'..cityDivision = ',cityDivision,'..state = ',state,'..lenderCityDivisionId = ',lenderCityDivisionId);
+            -- if lenderCityDivisionId = -1 then we need to check the data with ziplenderId -- Priyaraj 28 - 03-2023
+            if ziplenderId = -1 then
+			begin
+				set errmsg = 'No Lender Presence';
+                if debug then select 'lender reject', errmsg; end if;
+				call insert_lender_reject(tempuserId, banker, errmsg, temp);
+				-- insert into getmyLpi_All_Lenders_consolelogs select concat('No Lender Presence..','banker = ',banker,'..temp = ',temp);
+			end;
+			end if;
+
+
+	
+	end;
+    end if;
+    
+    
+    
+    
+    
+end;
+end if;
+-- end of go no go checks
+
+END
