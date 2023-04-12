@@ -64,7 +64,8 @@ select * from ref_emi_ratio_score where lenderid in (10,11);
 
 select count(1) from lender_product_loan where lenderid = 10; -- 45
 select count(1) from lender_product_loan where lenderid = 11; -- 45
-select * from lender_product_loan where lenderid = 10;
+select count(1) from lender_product_loan where lenderid = 0; -- 45
+select * from lender_product_loan where lenderid = 0;
 select * from lender_product_loan where lenderid = 11 and producttypeforintcal <> 1 order by producttypeid ;
 describe lender_product_loan
 
