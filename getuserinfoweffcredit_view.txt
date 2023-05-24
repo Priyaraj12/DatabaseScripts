@@ -1,0 +1,97 @@
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `getuserinfoweffcredit` AS
+    SELECT 
+        `i`.`userId` AS `userID`,
+        `u`.`userEmail` AS `userEmail`,
+        `l`.`loantype_desc` AS `loanTypeDescription`,
+        `r_p_t`.`ProductDesc` AS `productDescription`,
+        `u`.`subscriptionId` AS `subscriptionId`,
+        `i`.`firstName` AS `firstName`,
+        `i`.`lastName` AS `LastName`,
+        `g`.`gender` AS `gender`,
+        `i`.`dateOfBirth` AS `dateofBirth`,
+        `rms`.`maritalStatus` AS `maritalStatus`,
+        TRUNCATE(((TO_DAYS(NOW()) - TO_DAYS(STR_TO_DATE(`i`.`dateOfBirth`, '%m/%d/%Y'))) / 365),
+            0) AS `age`,
+        `re`.`education` AS `education`,
+        IF((`i`.`coApplicantId` = 0),
+            'No',
+            'Yes') AS `coapp`,
+        IF((`i`.`propertyIdentifierId` = 0),
+            'No',
+            'Yes') AS `Asset`,
+        `red`.`educationDetails` AS `educationDetails`,
+        IFNULL(`ri`.`Institution`, 'N/A') AS `education_Institution`,
+        `ua`.`address1` AS `address1`,
+        `ua`.`address2` AS `address2`,
+        `ua`.`address3` AS `address3`,
+        `z`.`cityDivision` AS `city`,
+        `z`.`state` AS `state`,
+        `z`.`zip` AS `zip`,
+        `rc`.`residenceCategory` AS `residenceCategory`,
+        `o`.`occupationType` AS `occupationType`,
+        `s`.`industrySegmentName` AS `industrySegmentName`,
+        `m`.`employerName` AS `employerName`,
+        `e`.`yearsOfServiceInIndustry` AS `ProfYears`,
+        `e`.`yearsOfServicewithEmployer` AS `EmpYears`,
+        `bp`.`projectName` AS `projectName`,
+        `b`.`builderName` AS `builderName`,
+        `a`.`assetArea` AS `assetArea`,
+        `a`.`assetFloor` AS `assetFloor`,
+        `af`.`assetValue` AS `assetvalueAsset`,
+        `f`.`incomeCredits` AS `netincome`,
+        `f`.`emiPermissible` AS `currentLoans`,
+        `f`.`assetValue` AS `assetValue`,
+        `f`.`loanValue` AS `loanValue`,
+        `f`.`loanTerm` AS `loanTerm`,
+        `lpi`.`requiredLoanAmount` AS `reqLoanAmount`,
+        `u`.`userLPiStatus` AS `loanApplied`,
+        `lpi`.`eligilbleLoanAmount` AS `EligloanAmount`,
+        0 AS `coAPP_Income`,
+        0 AS `coApp_Loans`,
+        `lpi`.`lpi` AS `lpi`,
+        `lpi`.`lenderId` AS `lenderId`,
+        `lpi`.`updatedOn` AS `updatedOn`,
+        `u_l_r`.`rejectReason` AS `rejectReason`,
+        `u_l_r`.`lenderId` AS `rejectLenderId`
+    FROM
+        ((((((((((((((((((((((`user_login` `u`
+        JOIN `user_info` `i` ON (((`i`.`userId` = `u`.`userId`)
+            AND (`i`.`activeStatus` = 1))))
+        JOIN `user_address` `ua` ON (((`ua`.`userId` = `i`.`userId`)
+            AND (`ua`.`activeStatus` > 0))))
+        JOIN `ref_zip` `z` ON (((`z`.`zipId` = `ua`.`zipid`)
+            AND (`z`.`activeStatus` > 0))))
+        LEFT JOIN `user_employment` `e` ON (((`e`.`userId` = `i`.`userId`)
+            AND (`e`.`activeStatus` = 1))))
+        LEFT JOIN `employer` `m` ON (((`m`.`employerId` = `e`.`employerId`)
+            AND (`m`.`activeStatus` = 1))))
+        LEFT JOIN `ref_education` `re` ON ((`re`.`educationId` = `i`.`educationId`)))
+        LEFT JOIN `ref_education_details` `red` ON ((`red`.`educationDetailsId` = `i`.`educationDetailsId`)))
+        LEFT JOIN `industry_sector` `s` ON ((`s`.`industrySegmentId` = `m`.`industrySegmentId`)))
+        JOIN `user_financials` `f` ON (((`f`.`userId` = `u`.`userId`)
+            AND (`f`.`activeStatus` = 1))))
+        JOIN `ref_gender` `g` ON ((`g`.`genderId` = `i`.`genderId`)))
+        JOIN `ref_marital_status` `rms` ON (((`rms`.`maritalStatusId` = `i`.`maritalStatusId`)
+            AND (`rms`.`activeStatus` > 0))))
+        LEFT JOIN `ref_education_institution` `ri` ON ((`ri`.`educationInstitutionId` = `i`.`educationInstitutionId`)))
+        JOIN `ref_residence_category` `rc` ON ((`rc`.`refResidenceCategoryId` = `i`.`residenceCategoryId`)))
+        JOIN `ref_occupation_type` `o` ON ((`o`.`OccupationTypeId` = `e`.`occupationtypeId`)))
+        LEFT JOIN `asset_financing` `af` ON (((`af`.`userId` = `i`.`userId`)
+            AND (`af`.`activeStatus` > 0))))
+        JOIN `loan_type` `l` ON ((`l`.`loantypeid` = `af`.`loanTypeId`)))
+        JOIN `ref_product_type` `r_p_t` ON ((`r_p_t`.`productTypeId` = `af`.`productTypeId`)))
+        LEFT JOIN `asset` `a` ON (((`a`.`userId` = `i`.`userId`)
+            AND (`a`.`activeStatus` = 1))))
+        LEFT JOIN `builder_project` `bp` ON (((`bp`.`builderProjectId` = `a`.`builderProjectId`)
+            AND (`bp`.`activeStatus` = 1))))
+        LEFT JOIN `builder` `b` ON (((`b`.`builderId` = `bp`.`builderId`)
+            AND (`b`.`activeStatus` = 1))))
+        LEFT JOIN `user_lpi_lenders` `lpi` ON (((`lpi`.`userId` = `i`.`userId`)
+            AND (`lpi`.`activeStatus` > 0)
+            AND (`lpi`.`lenderId` = 10))))
+        LEFT JOIN `user_lender_reject` `u_l_r` ON (((`u_l_r`.`userId` = `i`.`userId`)
+            AND (`u_l_r`.`activeStatus` > 0))))

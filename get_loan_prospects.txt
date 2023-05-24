@@ -1,0 +1,18 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_loan_prospects`(in promoCode varchar(10))
+BEGIN
+	select g.userID,concat(g.firstName, ' ', g.LastName) userName,g.loanTypeDescription,g.productDescription,
+	 g.occupationType, concat(g.city, ',', g.state) residence, g.lenderId loanAppliedToLender,g.loanValue,
+	-- l.userid, 
+    g.assetValue AssetCost,
+    -- l.userphone, g.coapp, 
+   -- g.reqLoanAmount , (g.assetValue - g.EligloanAmount) OwnContribution,
+	g.EligloanAmount, g.lpi, g.loanApplied LoanInitiated, 
+    -- (g.reqLoanAmount - g.EligloanAmount) LoanShortfall, 
+    date(g.updatedOn) LoanSubmittionDate, 
+    -- l.LPiCount,
+     g.rejectReason,g.rejectLenderId loanRejectedByLender
+	from ref_promo_code p 
+	inner join user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
+	inner join getuserinfoweffcredit g on g.userId = l.userId    
+	where p.promoCode = promoCode and l.activeStatus > 0  and (g.rejectLenderId = 10 or g.lenderId = 10)  order by l.createdOn desc;
+END

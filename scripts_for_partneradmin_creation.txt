@@ -1,0 +1,32 @@
+-- ref_promo_code data insertion
+INSERT INTO `staging`.`ref_promo_code` (`promoCodeId`, `promoCode`, `affiliateType`, `affiliateName`, `affiliateID`) VALUES ('3', 'UC0001', 'Builder', 'Urban Company', '6010');
+INSERT INTO `staging`.`ref_promo_code` (`promoCodeId`, `promoCode`, `affiliateType`, `affiliateName`, `affiliateID`) VALUES ('4', 'WR0001', 'Builder', 'WeRize', '6011');
+-- Updating userTypeId` = '3' for the new partner admin -- minshularora@urbancompany.com
+UPDATE `staging`.`user_login` SET `userTypeId` = '3' WHERE (`userId` = '1080');
+UPDATE `staging`.`user_login` SET `userTypeId` = '3' WHERE (`userId` = '1082');
+-- Inserting a record into builder table
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `activeStatus`) VALUES ('6010', 'Urban Company', '0', '1');
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `activeStatus`) VALUES ('6011', 'WeRize', '0', '1');
+
+-- Association of builder in the builder_user
+INSERT INTO `staging`.`builder_user` (`builderUserId`, `userId`, `builderId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`, `refUserTypeId`) VALUES ('3', '1080', '6010', '2023-05-15', 'Priyaraj', '2023-05-15', 'Priyaraj', '1', '3');
+INSERT INTO `staging`.`builder_user` (`builderUserId`, `userId`, `builderId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`, `refUserTypeId`) VALUES ('4', '1082', '6011', '2023-05-15 00:00:00', 'Priyaraj', '2023-05-15 00:00:00', 'Priyaraj', '1', '3');
+
+-- In UAT server
+-- ref_promo_code data insertion
+INSERT INTO `staging`.`ref_promo_code` (`promoCodeId`, `promoCode`, `affiliateType`, `affiliateName`, `affiliateID`) VALUES ('3', 'UC0001', 'Builder', 'Urban Company', '6010');
+INSERT INTO `staging`.`ref_promo_code` (`promoCodeId`, `promoCode`, `affiliateType`, `affiliateName`, `affiliateID`) VALUES ('4', 'WR0001', 'Builder', 'WeRize', '6011');
+-- Updating userTypeId` = '3' for the new partner admin -- minshularora@urbancompany.com
+UPDATE `staging`.`user_login` SET `userTypeId` = '3' WHERE (`userId` = '1018');
+UPDATE `staging`.`user_login` SET `userTypeId` = '3' WHERE (`userId` = '1019');
+
+-- Inserting a record into builder table
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `activeStatus`) VALUES ('6010', 'Urban Company', '0', '1');
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `activeStatus`) VALUES ('6011', 'WeRize', '0', '1');
+
+-- Association of builder in the builder_user
+INSERT INTO `staging`.`builder_user` (`builderUserId`, `userId`, `builderId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`, `refUserTypeId`) VALUES ('3', '1018', '6010', '2023-05-15', 'Priyaraj', '2023-05-15', 'Priyaraj', '1', '3');
+INSERT INTO `staging`.`builder_user` (`builderUserId`, `userId`, `builderId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`, `refUserTypeId`) VALUES ('4', '1019', '6011', '2023-05-15 00:00:00', 'Priyaraj', '2023-05-15 00:00:00', 'Priyaraj', '1', '3');
+
+
+
