@@ -1,18 +1,33 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_loan_prospects`(in promoCode varchar(10))
 BEGIN
-	select g.userID,concat(g.firstName, ' ', g.LastName) userName,g.loanTypeDescription,g.productDescription,
-	 g.occupationType, concat(g.city, ',', g.state) residence, g.lenderId loanAppliedToLender,g.loanValue,
+	select g.userID,g.userphone,concat(g.firstName, ' ', g.LastName) userName,g.loanTypeDescription,g.productDescription,
+	 g.occupationType, concat(g.city, ',', g.state) residence, g.assetCity,g.lenderId loanAppliedToLender,g.loanValue,
 	-- l.userid, 
     g.assetValue AssetCost,
     -- l.userphone, g.coapp, 
-   -- g.reqLoanAmount , (g.assetValue - g.EligloanAmount) OwnContribution,
-	g.EligloanAmount, g.lpi, g.loanApplied LoanInitiated, 
-    -- (g.reqLoanAmount - g.EligloanAmount) LoanShortfall, 
+   g.reqLoanAmount , 
+   (g.assetValue - g.EligloanAmount) OwnContribution,   
+	g.EligloanAmount, g.lpi, 
+    g.loanApplied LoanInitiated,
+    g.lenderAppInitiated lenderAppInitiated,
+    g.LPiCount,
+    IF((g.lenderAppInitiated >= 1),
+     CONCAT(lender.lenderName ,' offer is accepted'), 
+     CONCAT(lender.lenderName,' offer is not accepted')) AS 'OfferAcceptance',
+     (g.reqLoanAmount - g.EligloanAmount) LoanShortfall, 
     date(g.updatedOn) LoanSubmittionDate, 
-    -- l.LPiCount,
-     g.rejectReason,g.rejectLenderId loanRejectedByLender
+     IF((g.lpi < lender.minimumLPiScore),
+            'No offers are made',
+            lender.lenderName) AS `OfferAvailability`,
+	 u_l_d_d.disbursementStatus AS 'Status'
+     -- g.rejectReason,g.rejectLenderId loanRejectedByLender
 	from ref_promo_code p 
-	inner join user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
-	inner join getuserinfoweffcredit g on g.userId = l.userId    
-	where p.promoCode = promoCode and l.activeStatus > 0  and (g.rejectLenderId = 10 or g.lenderId = 10)  order by l.createdOn desc;
+	INNER JOIN user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
+	INNER JOIN getuserinfoweffcredit g on g.userId = l.userId    
+    INNER JOIN lender on lender.lenderId = g.lenderId
+    LEFT JOIN user_lender_disbursement_details u_l_d_d on u_l_d_d.userlpilenderid = g.userlpilenderid
+	where p.promoCode = promoCode and l.activeStatus > 0   
+    -- (g.rejectLenderId = 10 or g.lenderId = 10) 
+    and g.lenderId > 0 
+    order by l.createdOn desc;
 END
