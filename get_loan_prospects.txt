@@ -6,8 +6,8 @@ BEGIN
     g.assetValue AssetCost,
     -- l.userphone, g.coapp, 
    g.reqLoanAmount , 
-   (g.assetValue - g.EligloanAmount) OwnContribution,   
-	g.EligloanAmount, IF(LENGTH(g.rejectReason)>0,'NA',g.lpi) AS 'lpi',
+   (g.assetValue - g.EligloanAmount) OwnContribution,    
+	g.EligloanAmount, IF(LENGTH(g.rejectReason)>0 && g.rejectLenderId = 10,'NA ',g.lpi) AS 'lpi',
     g.loanApplied LoanInitiated,
     g.lenderAppInitiated lenderAppInitiated,
     g.LPiCount,
@@ -23,7 +23,7 @@ BEGIN
             'Vastu',
             'NA') AS `OfferRejected`,
 	 u_l_d_d.disbursementStatus AS 'Status',
-	IF(LENGTH(g.rejectReason) > 0,g.rejectReason,IF(g.lpi < lender.minimumLPiScore,'Low LPI','NA')) AS 'rejectReason',g.rejectLenderId loanRejectedByLender
+	IF(LENGTH(g.rejectReason) > 0 && g.rejectLenderId = 10,g.rejectReason,IF(g.lpi < lender.minimumLPiScore,'Low LPI','NA')) AS 'rejectReason',g.rejectLenderId loanRejectedByLender
 	from ref_promo_code p 
 	INNER JOIN user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
 	INNER JOIN getuserinfoweffcredit g on g.userId = l.userId    

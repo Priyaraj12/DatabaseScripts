@@ -1,0 +1,98 @@
+/* As we have PrimaryBank table to capture the bankname
+using them here in views -- Priyaraj 06-06-2023 */
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `getprimaryuserinfo` AS
+    SELECT 
+        `i`.`userId` AS `userID`,
+        `u`.`userEmail` AS `userEmail`,
+        `u`.`accountstatus` AS `PartnerCode`,
+        `i`.`firstName` AS `firstName`,
+        `i`.`lastName` AS `LastName`,
+        `g`.`gender` AS `gender`,
+        `i`.`dateOfBirth` AS `dateofBirth`,
+        `rms`.`maritalStatus` AS `maritalStatus`,
+        TRUNCATE(((TO_DAYS(NOW()) - TO_DAYS(STR_TO_DATE(`i`.`dateOfBirth`, '%m/%d/%Y'))) / 365),
+            0) AS `age`,
+        `re`.`education` AS `education`,
+        IF((`i`.`coApplicantId` = 0),
+            'No',
+            'Yes') AS `coapp`,
+        IF((`af`.`productTypeId` = 99),
+            'No',
+            'Yes') AS `Identified Property`,
+        `ptyp`.`ProductDesc` AS `Type of Asset`,
+        `ua`.`country` AS `Country`,
+        `ua`.`address3` AS `ResidentStatus`,
+        `z`.`cityDivision` AS `city`,
+        `z`.`state` AS `state`,
+        `z`.`zip` AS `zip`,
+        `rc`.`residenceCategory` AS `residenceCategory`,
+        `o`.`occupationType` AS `occupationType`,
+        `m`.`employerName` AS `employerName`,
+        `e`.`yearsOfServiceInIndustry` AS `ProfYears`,
+        `e`.`yearsOfServicewithEmployer` AS `EmpYears`,
+        `e`.`occupationtypeId` AS `OccTypeID`,
+        `rbcs`.`business_constitution_name` AS `businessConstitution`,
+        `rbas`.`annualSalesValue` AS `annualSales`,
+        `rbps`.`annualProfitValue` AS `annualProfit`,
+        `bp`.`projectName` AS `projectName`,
+        `b`.`builderName` AS `builderName`,
+        `af`.`assetValue` AS `assetvalueAsset`,
+        `af`.`city` AS `assetCity`,
+        `af`.`loanTermId` AS `reqTenure`,
+        `lpi`.`requiredLoanAmount` AS `reqLoanAmount`,
+        `lpi`.`term` AS `EligTenure`,
+        `u`.`userLPiStatus` AS `loanApplied`,
+        `lpi`.`eligilbleLoanAmount` AS `EligloanAmount`,
+        `oc`.`categoryname` AS `EmploymentSector`,
+        IF((`e`.`ITfiled` = 0), 'No', 'Yes') AS `Payslips/IT Filed`,
+        `ll`.`BankName` AS `PrimayBankAccount`,
+        `lpi`.`lpi` AS `lpi`,
+        `ci`.`creditScore` AS `creditScore`,
+        (`lpi`.`requiredLoanAmount` - `lpi`.`eligilbleLoanAmount`) AS `OwnContribution`
+    FROM
+        (((((((((((((((((((((((((`user_login` `u`
+        JOIN `user_info` `i` ON (((`i`.`userId` = `u`.`userId`)
+            AND (`i`.`activeStatus` = 1))))
+        JOIN `user_address` `ua` ON (((`ua`.`userId` = `i`.`userId`)
+            AND (`ua`.`activeStatus` > 0))))
+        JOIN `ref_zip` `z` ON (((`z`.`zipId` = `ua`.`zipid`)
+            AND (`z`.`activeStatus` > 0))))
+        LEFT JOIN `user_employment` `e` ON (((`e`.`userId` = `i`.`userId`)
+            AND (`e`.`activeStatus` = 1))))
+        -- LEFT JOIN `ref_loan_lender` `ll` ON ((`e`.`primaryBank` = `ll`.`loanLenderId`)))
+		LEFT JOIN `PrimaryBank` `ll` ON ((`e`.`primaryBank` = `ll`.`BankID`)))
+        LEFT JOIN `employer` `m` ON (((`m`.`employerId` = `e`.`employerId`)
+            AND (`m`.`activeStatus` = 1))))
+        LEFT JOIN `ref_education` `re` ON ((`re`.`educationId` = `i`.`educationId`)))
+        LEFT JOIN `ref_education_details` `red` ON ((`red`.`educationDetailsId` = `i`.`educationDetailsId`)))
+        LEFT JOIN `industry_sector` `s` ON ((`s`.`industrySegmentId` = `m`.`industrySegmentId`)))
+        JOIN `ref_gender` `g` ON ((`g`.`genderId` = `i`.`genderId`)))
+        JOIN `ref_marital_status` `rms` ON (((`rms`.`maritalStatusId` = `i`.`maritalStatusId`)
+            AND (`rms`.`activeStatus` > 0))))
+        LEFT JOIN `ref_education_institution` `ri` ON ((`ri`.`educationInstitutionId` = `i`.`educationInstitutionId`)))
+        LEFT JOIN `ref_residence_category` `rc` ON ((`rc`.`refResidenceCategoryId` = `i`.`residenceCategoryId`)))
+        LEFT JOIN `ref_occupation_type` `o` ON ((`o`.`OccupationTypeId` = `e`.`occupationtypeId`)))
+        LEFT JOIN `ref_occupation_category` `oc` ON ((`oc`.`categoryid` = `e`.`occupationcategoryid`)))
+        LEFT JOIN `asset_financing` `af` ON (((`af`.`userId` = `i`.`userId`)
+            AND (`af`.`activeStatus` > 0))))
+        JOIN `ref_product_type` `ptyp` ON ((`af`.`productTypeId` = `ptyp`.`productTypeId`)))
+        LEFT JOIN `asset` `a` ON (((`a`.`userId` = `i`.`userId`)
+            AND (`a`.`activeStatus` = 1))))
+        LEFT JOIN `builder_project` `bp` ON (((`bp`.`builderProjectId` = `a`.`builderProjectId`)
+            AND (`bp`.`activeStatus` = 1))))
+        LEFT JOIN `builder` `b` ON (((`b`.`builderId` = `bp`.`builderId`)
+            AND (`b`.`activeStatus` = 1))))
+        LEFT JOIN `user_lpi_lenders` `lpi` ON (((`lpi`.`userId` = `i`.`userId`)
+            AND (`lpi`.`activeStatus` > 0)
+            AND (`lpi`.`lenderId` = 0))))
+        LEFT JOIN `user_credit_info` `ci` ON (((`ci`.`userId` = `i`.`userId`)
+            AND (`ci`.`activeStatus` > 0))))
+        LEFT JOIN `ref_business_constitution_score` `rbcs` ON ((`rbcs`.`business_constitution_score_id` = `e`.`businessConstitution`)))
+        LEFT JOIN `ref_business_annual_sales` `rbas` ON ((`rbas`.`annualSalesId` = `e`.`annualSales`)))
+        LEFT JOIN `ref_business_annual_profit` `rbps` ON ((`rbps`.`annualProfitId` = `e`.`annualProfit`)))
+    WHERE
+        (`u`.`primaryUserId` = 0)

@@ -1,0 +1,27 @@
+/* This procedure collects basic details for a given user. This is required to be sent to the API */
+CREATE DEFINER=`phen`@`%` PROCEDURE `getUserBasicDetails`(in userId int)
+BEGIN
+	select ll.userId,u_i.firstName,u_i.lastName,u_i.dateofBirth,u_i.coApplicantId,
+	u_i.propertyIdentifierId,ui.userEmail,ui.userPhone,r_g.gender,r_m_s.maritalStatus, 
+	r_e.education,r_r_c.residenceCategory,r_z.zip,r_z.city as userCity,r_z.state,l.lenderId,l.lenderName,
+	af.assetValue,af.loanValue,af.loanTermId,l_t.loantype_desc, r_p_t.productdesc,af.city,r_l_t.timeframe_desc,
+	ucf.creditScore, IF(ui.accountstatus IS null OR length(ui.accountstatus) = 1,'NA',ui.accountstatus) AS accountstatus,ll.requiredLoanAmount,ll.eligilbleLoanAmount,ll.lpi,ll.createdOn
+	 from staging.user_login ui inner join staging.user_lpi_lenders ll on ll.userId=ui.userId 
+	 inner join staging.lender l on l.lenderId=ll.lenderId 
+	 inner join staging.asset_financing af on af.userid = ui.userid 
+	 inner join staging.user_credit_info ucf on ucf.userid = ui.userid 
+	 inner join staging.ref_product_type r_p_t on r_p_t.producttypeid = af.producttypeid 
+	 inner join staging.ref_loan_timeframe r_l_t on r_l_t.id = af.loantimeframe 
+	 inner join staging.user_info u_i on u_i.userId = ui.userid 
+	 inner join staging.ref_gender r_g on r_g.genderId = u_i.genderId 
+	 inner join staging.ref_marital_status r_m_s on r_m_s.maritalStatusId = u_i.maritalStatusId 
+	 inner join staging.ref_education r_e on r_e.educationId = u_i.educationId 
+	 inner join staging.ref_residence_category r_r_c on r_r_c.refResidenceCategoryId = u_i.ResidenceCategoryId 
+	 inner join staging.loan_type l_t on l_t.loantypeid = af.loanTypeId 
+	 inner join staging.user_address u_a on u_a.userId = ui.userid 
+	 inner join staging.ref_zip r_z on r_z.zipid = u_a.zipid 
+	 WHERE ui.primaryUserId=0 
+     -- AND ll.lenderAppInitiated=1 
+     AND ll.activeStatus = 1 AND l.lenderId = 10
+	 AND ui.userId = userId;
+END

@@ -1,0 +1,19 @@
+/* This procedure collects financial related details for a given user. This is required to be sent to the API */
+CREATE DEFINER=`phen`@`%` PROCEDURE `getUserFinancialDetails`(in userId int)
+BEGIN
+	select DISTINCT ll.userId,r_o_t.occupationType,r_o_c.categoryname,e.employerName,ue.yearsOfServiceInIndustry, 
+	ue.yearsOfServicewithEmployer,pb.BankName,ue.ITfiled,u_in.userGrossIncome,r_i_t.incomeTypedesc, rbcs.business_constitution_name  
+	from staging.user_login ui  
+	inner join staging.user_lpi_lenders ll on ll.userId=ui.userId  
+	inner join staging.user_employment ue on ue.userid = ui.userid  
+	inner join staging.user_credit_info ucf on ucf.userid = ui.userid  
+	inner join staging.user_info u_i on u_i.userId = ui.userid  
+	inner join staging.ref_occupation_type r_o_t on r_o_t.OccupationTypeId = ue.occupationtypeId  
+	inner join staging.user_income u_in on u_in.userId = ui.userid  
+	inner join staging.ref_income_type r_i_t on r_i_t.refincomeTypeId = u_in.userIncomeTypeId  
+	inner join staging.employer e on e.employerId = ue.employerId  
+	inner join staging.PrimaryBank pb on pb.BankID = ue.primarybank  
+	inner join staging.ref_occupation_category r_o_c on r_o_c.categoryId = ue.occupationcategoryid  
+	inner join staging.ref_business_constitution_score rbcs ON rbcs.business_constitution_score_id = ue.businessConstitution 
+	and ui.userId = userId and u_in.activeStatus = 1;
+END
