@@ -60,10 +60,12 @@ VIEW `getuserinfoweffcredit` AS
         `lpi`.`updatedOn` AS `updatedOn`,
         `lpi`.`userLPiLenderId` AS `userlpilenderid`,
         `lpi`.`lenderAppInitiated` AS `lenderAppInitiated`,
-        `u_l_r`.`rejectReason` AS `rejectReason`,
-        `u_l_r`.`lenderId` AS `rejectLenderId`
+        `gMR`.`rejectReason` AS `rejectReason`,
+        `gMR`.`rejectLenderId` AS `rejectLenderId`,
+        `gMR`.`rejectActiveStatus` AS `rejectActiveStatus`
     FROM
-        ((((((((((((((((((((((`user_login` `u`
+        ((`user_lpi_lenders` `lpi`
+        LEFT JOIN ((((((((((((((((((((`user_login` `u`
         JOIN `user_info` `i` ON (((`i`.`userId` = `u`.`userId`)
             AND (`i`.`activeStatus` = 1))))
         JOIN `user_address` `ua` ON (((`ua`.`userId` = `i`.`userId`)
@@ -94,8 +96,6 @@ VIEW `getuserinfoweffcredit` AS
         LEFT JOIN `builder_project` `bp` ON (((`bp`.`builderProjectId` = `a`.`builderProjectId`)
             AND (`bp`.`activeStatus` = 1))))
         LEFT JOIN `builder` `b` ON (((`b`.`builderId` = `bp`.`builderId`)
-            AND (`b`.`activeStatus` = 1))))
-        LEFT JOIN `user_lpi_lenders` `lpi` ON (((`lpi`.`userId` = `i`.`userId`)
+            AND (`b`.`activeStatus` = 1)))) ON (((`lpi`.`userId` = `i`.`userId`)
             AND (`lpi`.`activeStatus` > 0))))
-        LEFT JOIN `user_lender_reject` `u_l_r` ON (((`u_l_r`.`userId` = `i`.`userId`)
-            AND (`u_l_r`.`activeStatus` > 0))))
+        LEFT JOIN `getMultipleRejectReason` `gMR` ON ((`gMR`.`userId` = `i`.`userId`)))

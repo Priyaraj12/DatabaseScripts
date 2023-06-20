@@ -6,9 +6,10 @@ BEGIN
     g.assetValue AssetCost,
     -- l.userphone, g.coapp, 
    g.reqLoanAmount , 
-   (g.assetValue - g.EligloanAmount) OwnContribution,    
-	g.EligloanAmount, IF(LENGTH(g.rejectReason)>0 && g.rejectLenderId = 10,'NA ',g.lpi) AS 'lpi',
-    g.loanApplied LoanInitiated,
+   (g.assetValue - g.EligloanAmount) OwnContribution,  
+   -- Need to check whether should we include g.lenderAppInitiated >= 1
+	IF((g.lenderId = 10 && g.lpi > lender.minimumLPiScore ) ,g.EligloanAmount,'NA') AS EligloanAmount, IF(LENGTH(g.rejectReason)>0 && g.rejectLenderId = 10,'NA ',g.lpi) AS 'lpi',
+    g.loanApplied LoanInitiated, 
     g.lenderAppInitiated lenderAppInitiated,
     g.LPiCount,
     IF((g.lenderAppInitiated >= 1 && g.lenderId = 10),
@@ -30,7 +31,7 @@ BEGIN
     INNER JOIN lender on lender.lenderId = g.lenderId
     LEFT JOIN user_lender_disbursement_details u_l_d_d on u_l_d_d.userlpilenderid = g.userlpilenderid   
 	where p.promoCode = promoCode and l.activeStatus > 0   
-    and (g.rejectLenderId = 10 or g.lenderId = 10) 
-    -- and g.lenderId = 10 
-    order by l.createdOn desc;
+    and (( g.rejectLenderId = 10 and g.lenderAppInitiated = 1) or g.lenderId = 10) 
+    -- As when rejection done by vastu but offer made for lender 0 and 11, we need to show only one row. So added condition above by Priyaraj on 16-06-2023
+    order by l.createdOn desc, g.userID;
 END

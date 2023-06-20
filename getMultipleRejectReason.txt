@@ -1,0 +1,16 @@
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `getMultipleRejectReason` AS
+    SELECT 
+        `user_lender_reject`.`userId` AS `userId`,
+		`user_lender_reject`.`activeStatus` AS `rejectActiveStatus`,
+		`user_lender_reject`.`lenderId` AS `rejectLenderId`,
+        GROUP_CONCAT(`user_lender_reject`.`rejectReason`
+            SEPARATOR ',') AS `rejectReason`
+    FROM
+        `user_lender_reject`
+    WHERE
+        (`user_lender_reject`.`activeStatus` = 1 AND `user_lender_reject`.`lenderId` = 10) 
+    GROUP BY `user_lender_reject`.`userId`
