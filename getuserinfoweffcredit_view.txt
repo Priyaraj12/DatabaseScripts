@@ -9,6 +9,7 @@ VIEW `getuserinfoweffcredit` AS
         `l`.`loantype_desc` AS `loanTypeDescription`,
         `r_p_t`.`ProductDesc` AS `productDescription`,
         `u`.`subscriptionId` AS `subscriptionId`,
+        `u`.`accountstatus` AS `accountstatus`,
         `i`.`firstName` AS `firstName`,
         `i`.`lastName` AS `LastName`,
         `g`.`gender` AS `gender`,
