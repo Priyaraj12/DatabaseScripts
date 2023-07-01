@@ -10,6 +10,7 @@ VIEW `getuserinfoweffcredit` AS
         `r_p_t`.`ProductDesc` AS `productDescription`,
         `u`.`subscriptionId` AS `subscriptionId`,
         `u`.`accountstatus` AS `accountstatus`,
+        `u`.`sourceChannel` AS `sourceChannel`,
         `i`.`firstName` AS `firstName`,
         `i`.`lastName` AS `LastName`,
         `g`.`gender` AS `gender`,

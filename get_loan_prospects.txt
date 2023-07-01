@@ -1,12 +1,14 @@
--- Huge change is done as vastu admin needs to see all promocode customers
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_loan_prospects`(in promoCode varchar(10))
 BEGIN
-	IF (promoCode = 'VASTU001')  THEN
 		select g.userID,g.lenderId,g.userphone,concat(g.firstName, ' ', g.LastName) userName,g.loanTypeDescription,g.productDescription,
 		 g.occupationType, concat(g.city, ',', g.state) residence, g.assetCity,g.lenderId loanAppliedToLender,g.loanValue,
 		g.assetValue AssetCost,g.reqLoanAmount , 
 	   (g.assetValue - g.EligloanAmount) OwnContribution,  
-       g.accountstatus,p.affiliateName AS partnerName,
+       g.accountstatus,g.sourceChannel,
+       (CASE WHEN promoCode = 'VASTU001' THEN p.affiliateName 
+        WHEN promoCode =  'AGENCY001' THEN p.affiliateName
+        ELSE  ' '
+        END) AS partnerName,
 	   -- Need to check whether should we include g.lenderAppInitiated >= 1
 		IF(g.lenderId = 10 ,g.EligloanAmount,'NA') AS EligloanAmount, IF(LENGTH(g.rejectReason)>0 && g.rejectLenderId = 10,'NA ',g.lpi) AS 'lpi',
 		g.loanApplied LoanInitiated, 
@@ -27,49 +29,16 @@ BEGIN
 		IF(LENGTH(g.rejectReason) > 0 && g.rejectLenderId = 10 && g.rejectActiveStatus = 1,g.rejectReason,IF(g.lpi < lender.minimumLPiScore,'Low LPI','NA')) AS 'rejectReason',g.rejectLenderId loanRejectedByLender,
 		date(u_l_d_d.updatedOn) As 'LastActionDate'
 		from ref_promo_code p 
-		INNER JOIN user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
+		INNER JOIN user_login l on (upper(l.accountstatus)=p.promoCode || upper(l.sourceChannel)=p.promoCode) and l.activeStatus > 0 and primaryUserId = 0
 		INNER JOIN getuserinfoweffcredit g on g.userId = l.userId    
 		INNER JOIN lender on lender.lenderId = g.lenderId
 		LEFT JOIN user_lender_disbursement_details u_l_d_d on u_l_d_d.userlpilenderid = g.userlpilenderid   
 		where  l.activeStatus > 0   
 		and (( g.rejectLenderId = 10 and g.lenderAppInitiated = 1) or g.lenderId = 10)
-        -- and g.accountstatus = p.affiliateName
+        and (CASE WHEN promoCode = 'VASTU001' THEN 1 = 1
+        WHEN promoCode =  'AGENCY001' THEN p.promocode IN ('PM0001','MK0001','GC0001','CS0001')
+        ELSE p.promoCode = promoCode
+        END)
 		-- As when rejection done by vastu but offer made for lender 0 and 11, we need to show only one row. So added condition above by Priyaraj on 16-06-2023
-		order by l.createdOn desc, g.userID;
-	ELSE
-		select g.userID,g.lenderId,g.userphone,concat(g.firstName, ' ', g.LastName) userName,g.loanTypeDescription,g.productDescription,
-		 g.occupationType, concat(g.city, ',', g.state) residence, g.assetCity,g.lenderId loanAppliedToLender,g.loanValue,
-		g.assetValue AssetCost,g.reqLoanAmount , 
-	   (g.assetValue - g.EligloanAmount) OwnContribution,  
-       g.accountstatus,' ' AS partnerName,
-	   -- Need to check whether should we include g.lenderAppInitiated >= 1
-		IF(g.lenderId = 10 ,g.EligloanAmount,'NA') AS EligloanAmount, IF(LENGTH(g.rejectReason)>0 && g.rejectLenderId = 10,'NA ',g.lpi) AS 'lpi',
-		g.loanApplied LoanInitiated, 
-		g.lenderAppInitiated lenderAppInitiated,
-		g.LPiCount,
-		IF((g.lenderAppInitiated >= 1 && g.lenderId = 10),
-		 'YES', 
-		 'NA') AS 'OfferAcceptance',
-		 (g.reqLoanAmount - g.EligloanAmount) LoanShortfall, 
-		date(g.updatedOn) LoanSubmittionDate, 
-		 IF((g.lpi < lender.minimumLPiScore ), 
-				'No offers are made',
-				IF (g.lenderId = 10, CONCAT(lender.lenderName ,' '),'No offers are made')) AS `OfferAvailability`,
-		IF((g.rejectLenderId = 10),
-				'Vastu',
-				'NA') AS `OfferRejected`,
-		 u_l_d_d.disbursementStatus AS 'Status',
-		IF(LENGTH(g.rejectReason) > 0 && g.rejectLenderId = 10 && g.rejectActiveStatus = 1,g.rejectReason,IF(g.lpi < lender.minimumLPiScore,'Low LPI','NA')) AS 'rejectReason',g.rejectLenderId loanRejectedByLender,
-		date(u_l_d_d.updatedOn) As 'LastActionDate'
-		from ref_promo_code p 
-		INNER JOIN user_login l on upper(l.accountstatus)=p.promoCode and l.activeStatus > 0 and primaryUserId = 0
-		INNER JOIN getuserinfoweffcredit g on g.userId = l.userId    
-		INNER JOIN lender on lender.lenderId = g.lenderId
-		LEFT JOIN user_lender_disbursement_details u_l_d_d on u_l_d_d.userlpilenderid = g.userlpilenderid   
-		where  l.activeStatus > 0   
-		and (( g.rejectLenderId = 10 and g.lenderAppInitiated = 1) or g.lenderId = 10)
-		and p.promoCode = promoCode 
-		-- As when rejection done by vastu but offer made for lender 0 and 11, we need to show only one row. So added condition above by Priyaraj on 16-06-2023
-		order by l.createdOn desc, g.userID;
-	END IF;
+		order by l.createdOn desc, g.userID;	
 END

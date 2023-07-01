@@ -1,0 +1,11 @@
+ALTER TABLE `staging`.`user_login` 
+ADD COLUMN `sourceChannel` VARCHAR(10) NULL DEFAULT NULL AFTER `accountstatus`;
+
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`) 
+VALUES ('6014', 'Portfolio Management', '0', '01/07/2023', 'Priyaraj', '01/07/2023', 'Priyaraj', '1');
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`) 
+VALUES ('6015', 'Green Channel', '0', '01/07/2023', 'Priyaraj', '01/07/2023', 'Priyaraj', '1');
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`) 
+VALUES ('6016', 'Marketing', '0', '01/07/2023', 'Priyaraj', '01/07/2023', 'Priyaraj', '1');
+INSERT INTO `staging`.`builder` (`builderId`, `builderName`, `zipId`, `createdOn`, `createdBy`, `updatedOn`, `updatedBy`, `activeStatus`) 
+VALUES ('6017', 'Cross Sell', '0', '01/07/2023', 'Priyaraj', '01/07/2023', 'Priyaraj', '1');
